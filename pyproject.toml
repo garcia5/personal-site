@@ -19,7 +19,13 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "black>=23.9.1",
+    "pyright>=1.1.328",
 ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.pyright]
+include = ["agarcia"]
+venvPath = "."
+venv = ".venv"
