@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "tailwind -i agarcia/input.css -o agarcia/static/style.css"
+  },
   "devDependencies": {
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2"
