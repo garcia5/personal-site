@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [],
+  content: ['./agarcia/templates/**/*.{html,js}'],
   theme: {
     extend: {},
   },

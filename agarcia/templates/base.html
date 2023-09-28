@@ -3,17 +3,22 @@
     <link rel="stylesheet" href={{ url_for('static', filename='style.css') }}>
     <title>Alexander Garcia</title>
 </head>
-<nav>
-    <h1>My Site</h1>
-    <ul>
-        <li><a href={{ url_for('home') }}>Home</a></li>
-        <li><a href={{ url_for('about') }}>About</a></li>
-    </ul>
-</nav>
-<section class="content">
-    <header>{% block header %}{% endblock %}</header>
-    {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-    {% endfor %}
-    {% block content %}{% endblock %}
-</section>
+
+<body>
+    <div class="container mx-auto my-4 text-center text-2xl">
+        <h1>Alexander Garcia</h1>
+    </div>
+    <nav class="flex justify-center">
+        <div>
+            <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
+            <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
+        </div>
+    </nav>
+    <section class="container mx-auto">
+        <header>{% block header %}{% endblock %}</header>
+        {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </section>
+</body>
