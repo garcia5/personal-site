@@ -5,20 +5,22 @@
 </head>
 
 <body>
-    <div class="container mx-auto my-4 text-center text-2xl">
-        <h1>Alexander Garcia</h1>
-    </div>
-    <nav class="flex justify-center">
-        <div>
-            <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
-            <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
+        <div id="app" class="container mx-auto">
+        <div class="my-4 text-center text-2xl">
+            <h1>Alexander Garcia</h1>
         </div>
-    </nav>
-    <section class="container mx-auto">
-        <header>{% block header %}{% endblock %}</header>
-        {% for message in get_flashed_messages() %}
-        <div class="flash">{{ message }}</div>
-        {% endfor %}
-        {% block content %}{% endblock %}
-    </section>
+        <nav class="flex justify-center">
+            <div>
+                <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
+                <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
+            </div>
+        </nav>
+        <div class="flex flex-col my-4 items-center">
+            <header class="text-lg text-center">{% block header %}{% endblock %}</header>
+            {% for message in get_flashed_messages() %}
+            <div class="flash">{{ message }}</div>
+            {% endfor %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
 </body>
