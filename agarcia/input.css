@@ -13,6 +13,16 @@
         @apply text-lg;
     }
     a {
-        @apply text-ctp-mauve;
+        @apply text-ctp-mauve hover:text-ctp-lavender
+    }
+}
+
+@layer components {
+    .nav-item {
+        @apply p-4 bg-origin-content hover:bg-ctp-surface1 hover:rounded-md hover:shadow
+    }
+
+    .enlargable-image {
+        @apply transition ease-in-out delay-150 hover:scale-150 duration-300 cursor-pointer hover:shadow
     }
 }

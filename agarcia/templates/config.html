@@ -7,10 +7,17 @@
 {% block content %}
 <div class="text-left max-w-xl">
     <p>These are links to my personal configurations, updated relatively frequently</p>
-    <ul class="list-disc my-4">
+    <ul class="my-4">
         {% for config in config_urls %}
         <li>
-            <a href="{{ config['url'] }}" target="_blank">{{ config['display'] }}</a>
+            <a href="{{ config.url }}" target="_blank" class="text-xl">{{ config.display }}</a>
+            {% if config.image %}
+            <img
+                src={{ url_for('static', filename=config.image) }}
+                alt={{ config.display }} Showcase
+                class="enlargable-image pb-4"
+            >
+            {% endif %}
         </li>
         {% endfor %}
     </ul>

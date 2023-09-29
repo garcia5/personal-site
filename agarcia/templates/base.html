@@ -2,19 +2,20 @@
 <html class="bg-ctp-surface0 text-ctp-text">
     <head>
         <link rel="stylesheet" href={{ url_for('static', filename='style.css') }}>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <title>Alexander Garcia</title>
     </head>
 
     <body>
             <div id="app" class="container mx-auto">
             <div class="my-4 text-center">
-                <h1>Alexander Garcia</h1>
+                <h1 class="text-5xl">Alexander Garcia</h1>
             </div>
             <nav class="flex justify-center">
                 <div>
-                    <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
-                    <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
-                    <a class="nav-item mx-2" href={{ url_for('config') }}>Config</a>
+                    <a class="nav-item" href={{ url_for('home') }}>Home</a>
+                    <a class="nav-item" href={{ url_for('about') }}>About</a>
+                    <a class="nav-item" href={{ url_for('config.base') }}>Config</a>
                 </div>
             </nav>
             <div class="flex flex-col my-4 items-center">
