@@ -3,7 +3,8 @@
     "build": "tailwind -i agarcia/input.css -o agarcia/static/style.css",
     "dev": "concurrently \"npm:dev:flask\" \"npm:dev:tailwind\"",
     "dev:tailwind": "npx tailwindcss -i agarcia/input.css -o agarcia/static/style.css --watch",
-    "dev:flask": "rye run flask --app agarcia run --debug"
+    "dev:flask": "rye run flask --app agarcia run --debug",
+    "start": "rye run gunicorn -w 4 'agarcia:create_app()'"
   },
   "devDependencies": {
     "@catppuccin/tailwindcss": "^0.1.6",
