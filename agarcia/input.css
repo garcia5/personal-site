@@ -25,4 +25,8 @@
     .enlargable-image {
         @apply transition ease-in-out delay-150 hover:scale-150 duration-300 cursor-pointer hover:shadow
     }
+
+    .about-heading {
+        @apply text-lg pr-4;
+    }
 }
