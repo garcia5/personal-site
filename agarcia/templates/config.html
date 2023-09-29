@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>Config</h1>
+{% endblock %}
+
+{% block content %}
+<div class="text-left max-w-xl">
+    <p>These are links to my personal configurations, updated relatively frequently</p>
+    <ul class="list-disc my-4">
+        {% for config in config_urls %}
+        <li>
+            <a href="{{ config['url'] }}" target="_blank">{{ config['display'] }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

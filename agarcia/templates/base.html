@@ -1,26 +1,29 @@
 <!doctype html>
-<head>
-    <link rel="stylesheet" href={{ url_for('static', filename='style.css') }}>
-    <title>Alexander Garcia</title>
-</head>
+<html class="bg-ctp-surface0 text-ctp-text">
+    <head>
+        <link rel="stylesheet" href={{ url_for('static', filename='style.css') }}>
+        <title>Alexander Garcia</title>
+    </head>
 
-<body>
-        <div id="app" class="container mx-auto">
-        <div class="my-4 text-center text-2xl">
-            <h1>Alexander Garcia</h1>
-        </div>
-        <nav class="flex justify-center">
-            <div>
-                <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
-                <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
+    <body>
+            <div id="app" class="container mx-auto">
+            <div class="my-4 text-center">
+                <h1>Alexander Garcia</h1>
             </div>
-        </nav>
-        <div class="flex flex-col my-4 items-center">
-            <header class="text-lg text-center">{% block header %}{% endblock %}</header>
-            {% for message in get_flashed_messages() %}
-            <div class="flash">{{ message }}</div>
-            {% endfor %}
-            {% block content %}{% endblock %}
+            <nav class="flex justify-center">
+                <div>
+                    <a class="nav-item mx-2" href={{ url_for('home') }}>Home</a>
+                    <a class="nav-item mx-2" href={{ url_for('about') }}>About</a>
+                    <a class="nav-item mx-2" href={{ url_for('config') }}>Config</a>
+                </div>
+            </nav>
+            <div class="flex flex-col my-4 items-center">
+                <h3 class="text-center">{% block header %}{% endblock %}</h3>
+                {% for message in get_flashed_messages() %}
+                <div class="flash">{{ message }}</div>
+                {% endfor %}
+                {% block content %}{% endblock %}
+            </div>
         </div>
-    </div>
-</body>
+    </body>
+</html>
