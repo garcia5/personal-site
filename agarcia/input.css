@@ -29,4 +29,12 @@
     .about-heading {
         @apply text-lg pr-4;
     }
+
+    .footer {
+        @apply fixed bottom-0 w-screen h-20 bg-ctp-surface1 flex justify-center;
+    }
+
+    .footer-icon {
+        @apply h-8 w-8;
+    }
 }

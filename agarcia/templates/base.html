@@ -29,6 +29,17 @@
             </div>
         </div>
 
+        <div class="footer">
+            <div class="flex flex-row items-center justify-evenly w-40">
+                <a href="https://github.com/garcia5" target="_blank">
+                    <img class="footer-icon" src={{ url_for('static', filename="github.svg") }}>
+                </a>
+                <a href="https://www.linkedin.com/in/alexander-garcia-840a41149/" target="_blank">
+                    <img class="footer-icon" stroke="black" fill="black" src={{ url_for('static', filename="linkedin.svg") }}>
+                </a>
+            </div>
+        </div>
+
         <script>
         function growImage(imgContainer) {
             const img = imgContainer.querySelector('.enlargable-image');
