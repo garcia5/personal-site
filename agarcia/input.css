@@ -4,16 +4,16 @@
 
 @layer base {
     h1 {
-        @apply text-2xl;
+        @apply text-2xl text-ctp-rosewater;
     }
     h2 {
-        @apply text-xl;
+        @apply text-xl text-ctp-maroon;
     }
     h3 {
-        @apply text-lg;
+        @apply text-lg text-ctp-peach;
     }
     a {
-        @apply text-ctp-mauve hover:text-ctp-lavender
+        @apply hover:text-ctp-flamingo;
     }
 }
 

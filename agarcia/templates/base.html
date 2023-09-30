@@ -9,15 +9,13 @@
     <body>
         <div id="app" class="container mx-auto">
             <div class="my-4 text-center">
-                <h1 class="text-5xl">Alexander Garcia</h1>
+                <p class="text-5xl">Alexander Garcia</p>
             </div>
             <nav class="flex justify-center">
-                <div>
-                    <a class="nav-item" href={{ url_for('home') }}>Home</a>
-                    <a class="nav-item" href={{ url_for('about.base') }}>About</a>
-                    <a class="nav-item" href={{ url_for('config.base') }}>Config</a>
-                    <a class="nav-item" href={{ url_for('static', filename="Alexander Garcia Resume.pdf") }} target="_blank">Resume</a>
-                </div>
+                <a class="nav-item" href={{ url_for('home') }}>Home</a>
+                <a class="nav-item" href={{ url_for('about.base') }}>About</a>
+                <a class="nav-item" href={{ url_for('config.base') }}>Config</a>
+                <a class="nav-item" href={{ url_for('static', filename="Alexander Garcia Resume.pdf") }} target="_blank">Resume</a>
             </nav>
             <div class="flex flex-col my-4 items-center">
                 <h1 class="text-center pb-4">
