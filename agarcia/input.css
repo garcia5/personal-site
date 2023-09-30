@@ -37,4 +37,12 @@
     .footer-icon {
         @apply h-8 w-8;
     }
+
+    .about-me-card {
+        @apply flex flex-col justify-center items-start text-left pb-4;
+    }
+
+    .work-title {
+        @apply flex flex-row justify-between items-baseline gap-x-4
+    }
 }

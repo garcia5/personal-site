@@ -5,21 +5,45 @@ About Me
 {% endblock %}
 
 {% block content %}
-<div class="text-left max-w-xl">
-    <ul>
-        <li>
-            <span class="about-heading">Work</span>
-            <a href="https://www.dotdashmeredith.com/" target="_blank">
-                Dotdash Meredith
-            </a>
-        </li>
-        <li>
-            <span class="about-heading">Live</span>
-            Williamsburg, Brooklyn, NY
-        </li>
-        <li>
-            <span class="about-heading">Fun</span> walking the dog, rock climbing, video games
-        </li>
-    </ul>
+<div class="text-center max-w-prose mb-40">
+    <section class="pb-4">
+        <h2 class="pb-2 font-bold">
+            Work
+        </h2>
+
+        {% for work_item in work %}
+        <div class="about-me-card">
+            <div class="work-title">
+                <p class="text-lg">{{ work_item.company }}</p>
+                <p class="text-ctp-subtext0">{{ work_item.period }}</p>
+            </div>
+            <p class="text text-ctp-subtext1">{{ work_item.description }}</p>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section>
+        <h2 class="pb-2 font-bold">
+            Fun
+        </h2>
+
+        <div class="text-left text-ctp-rosewater">
+            <h3>Cars</h3>
+            <img
+                src={{ url_for("static", filename="me-and-car.jpg") }}
+                alt="Me smiling next to old porsches"
+            >
+            <h3 class="pt-4">Climbing</h3>
+            <img
+                src={{ url_for("static", filename="climb.jpg") }}
+                alt="Me bouldering indoors"
+            >
+            <h3 class="pt-4">Indy</h3>
+            <img
+                src={{ url_for("static", filename="indy.jpg") }}
+            alt="Professional picture of black dog"
+            >
+        </div>
+    </section>
 </div>
 {% endblock %}
