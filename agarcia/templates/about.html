@@ -27,23 +27,19 @@ About Me
             Fun
         </h2>
 
-        <div class="text-left text-ctp-rosewater">
-            <h3>Cars</h3>
-            <img
-                src={{ url_for("static", filename="me-and-car.jpg") }}
-                alt="Me smiling next to old porsches"
-            >
-            <h3 class="pt-4">Climbing</h3>
-            <img
-                src={{ url_for("static", filename="climb.jpg") }}
-                alt="Me bouldering indoors"
-            >
-            <h3 class="pt-4">Indy</h3>
-            <img
-                src={{ url_for("static", filename="indy.jpg") }}
-            alt="Professional picture of black dog"
-            >
+        {% for fun_item in fun %}
+        <div class="text-left text-ctp-rosewater my-4">
+            <div class="img-container relative">
+                <img
+                    src={{ url_for("static", filename=fun_item.filename) }}
+                    alt={{ fun_item.alt }}
+                >
+                <div class="img-overlay">
+                    <h1 class="font-bold">{{ fun_item.title }}</h1>
+                </div>
+            </div>
         </div>
+        {% endfor %}
     </section>
 </div>
 {% endblock %}

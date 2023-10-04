@@ -30,6 +30,10 @@
         @apply text-lg pr-4;
     }
 
+    .img-overlay {
+        @apply absolute bg-ctp-surface1 inset-0 flex items-center justify-center opacity-75 hover:opacity-0 transition-opacity
+    }
+
     .footer {
         @apply fixed bottom-0 w-screen h-20 grow bg-ctp-surface1 flex flex-col justify-center items-center gap-y-2;
     }
