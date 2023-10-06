@@ -7,9 +7,11 @@
     "start": "rye run gunicorn -w 4 'agarcia:create_app()'"
   },
   "devDependencies": {
-    "@catppuccin/tailwindcss": "^0.1.6",
     "concurrently": "^8.2.1",
-    "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.3.3",
+    "@catppuccin/tailwindcss": "^0.1.6"
   }
 }
