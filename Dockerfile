@@ -27,7 +27,7 @@ RUN python -m ensurepip
 RUN python -m pip install -r requirements.txt
 
 # Expose the port that the application will run on
-EXPOSE 8080
+EXPOSE 80
 
 # Command to run the application
-CMD ["gunicorn", "-w", "4", "agarcia:create_app()"]
+CMD ["gunicorn", "-w", "4", "--bind", "0.0.0.0:80", "agarcia:create_app()"]
