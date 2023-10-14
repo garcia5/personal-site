@@ -26,6 +26,10 @@ dev-dependencies = [
 [tool.rye.scripts]
 start = { cmd = ["gunicorn", "-w", "4", "agarcia:create_app()"] }
 dev = { cmd = [ "python", "agarcia/scripts/dev.py", "flask --app agarcia run --debug", "./node_modules/.bin/tailwindcss -i agarcia/input.css -o agarcia/static/style.css" ] }
+"start:docker" = { cmd = [ "docker", "run", "-d", "-p", "8000:80", "agarcia-personal-site:arm" ] }
+"build:amd" = { cmd = [ "docker", "build", "--platform", "linux/amd64", "-t", "agarcia-personal-site:amd", "." ] }
+"build:arm" = { cmd = [ "docker", "build", "-t", "agarcia-personal-site:arm", "." ] }
+deploy = { cmd = [ "docker", "push", "gcr.io/buoyant-braid-401022/agarcia-personal-site:amd64" ] }
 
 [tool.hatch.metadata]
 allow-direct-references = true
