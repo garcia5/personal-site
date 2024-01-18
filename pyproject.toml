@@ -29,7 +29,8 @@ dev-dependencies = [
 dev = { cmd = [ "python", "agarcia/scripts/dev.py", "flask --app agarcia run --debug", "./node_modules/.bin/tailwindcss -i agarcia/input.css -o agarcia/static/style.css" ] }
 freeze = { cmd = [ "python", "agarcia/__init__.py" ] }
 index = { cmd = [ "cp", "agarcia/docs/home", "agarcia/docs/index.html" ] }
-build = { chain = [ "freeze", "index" ] }
+docs = { cmd = [ "mv", "agarcia/docs", "docs" ] }
+build = { chain = [ "freeze", "index", "docs" ] }
 
 [tool.hatch.metadata]
 allow-direct-references = true
