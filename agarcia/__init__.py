@@ -11,17 +11,24 @@ def create_app():
     app.register_blueprint(about.bp)
 
     @app.route("/")
-    @app.route("/home")
+    @app.route("/home/")
     def home():
-        return render_template("home.html")
+        return render_template("index.html")
 
     return app
 
 
 def freeze():
     app = create_app()
-    app.config['FREEZER_DESTINATION'] = "docs"
+    app.config["FREEZER_DESTINATION"] = "../docs"
+    app.config["FREEZER_DEFAULT_MIMETYPE"] = "text/html"
+    app.config["FREEZER_RELATIVE_URLS"] = True
     freezer = Freezer(app=app, with_static_files=True)
+
+    @freezer.register_generator
+    def index_generator():
+        yield "/"
+
     freezer.freeze()
 
 
