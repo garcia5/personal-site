@@ -43,10 +43,14 @@
     }
 
     .about-me-card {
-        @apply flex flex-col justify-center items-start text-left pb-4;
+        @apply flex flex-col justify-center items-start text-left pb-8;
     }
 
     .work-title {
         @apply flex flex-row justify-between items-baseline gap-x-4
+    }
+
+    .work-heading {
+        @apply pb-2
     }
 }

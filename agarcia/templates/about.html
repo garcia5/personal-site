@@ -13,9 +13,12 @@ About Me
 
         {% for work_item in work %}
         <div class="about-me-card">
-            <div class="work-title">
-                <p class="text-lg">{{ work_item.company }}</p>
-                <p class="text-ctp-subtext0">{{ work_item.period }}</p>
+            <div class="work-heading">
+                <div class="work-title">
+                    <p class="text-xl">{{ work_item.company }}</p>
+                    <p class="text-ctp-subtext0">{{ work_item.period }}</p>
+                </div>
+                <p class="text-sm text-ctp-subtext0">{{ work_item.position }}</p>
             </div>
             <p class="text text-ctp-subtext1">{{ work_item.description }}</p>
         </div>

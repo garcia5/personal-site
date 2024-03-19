@@ -12,8 +12,8 @@ def base():
         {
             "company": "Capital One",
             "period": "Jan. 2024 - Present",
-            "position": "Senior Software Engineer",
-            "description": "TBD"
+            "position": "Senior Software/Data Engineer",
+            "description": "Building storage solutions for Capital One's data lake",
         },
         {
             "company": "Dotdash Meredith",
@@ -25,7 +25,8 @@ def base():
             "company": "FactSet Research Systems",
             "period": "Aug. 2019 - Aug. 2021",
             "position": "Software Engineer III",
-            "description": "Maintain critical job scheduling infrastructure, as well as build out new product offerings for the Content & Technology Solutions department",
+            "description":
+                "Maintain critical job scheduling infrastructure, as well as build out new product offerings for the Content & Technology Solutions department",
         },
     ]
 
