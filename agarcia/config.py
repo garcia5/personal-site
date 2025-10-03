@@ -32,11 +32,5 @@ def base():
             "id": "fzf",
             "image": "fzf-1.png",
         },
-        {
-            "url": f"{base_url}/files/sketchybar/sketchybarrc",
-            "display": "Sketchybar",
-            "id": "sketchybar",
-            "image": "sketchybar.png",
-        },
     ]
     return render_template("config.html", config_urls=config_urls)

@@ -12,8 +12,8 @@ def base():
         {
             "company": "Capital One",
             "period": "Jan. 2024 - Present",
-            "position": "Senior Software/Data Engineer",
-            "description": "Building storage solutions for Capital One's data lake",
+            "position": "Senior Software Engineer",
+            "description": "Building storage solutions for Capital One's data lake, with a focus on enabling Apache Iceberg",
         },
         {
             "company": "Dotdash Meredith",
