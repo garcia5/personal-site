@@ -1,7 +1,7 @@
-import React from 'react';
-import Header from './Header';
-import Navigation from './Navigation';
-import Footer from './Footer';
+import React from 'react'
+import Header from './Header'
+import Navigation from './Navigation'
+import Footer from './Footer'
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -9,13 +9,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div id="app" className="container mx-auto flex-grow">
         <Header />
         <Navigation />
-        <main className="flex flex-col my-4 items-center">
-          {children}
-        </main>
+        <main className="flex flex-col my-4 items-center">{children}</main>
       </div>
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout
