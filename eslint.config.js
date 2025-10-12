@@ -22,11 +22,11 @@ export default defineConfig([
       globals: globals.browser,
     },
     plugins: {
-        prettier: prettierPlugin,
+      prettier: prettierPlugin,
     },
     rules: {
-        'prettier/prettier': 'error',
-    }
+      'prettier/prettier': 'error',
+    },
   },
   prettierConfig,
 ])
