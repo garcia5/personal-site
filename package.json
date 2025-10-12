@@ -1,17 +1,39 @@
 {
+  "name": "new-site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "tailwind -i agarcia/input.css -o agarcia/static/style.css",
-    "dev": "concurrently \"npm:dev:flask\" \"npm:dev:tailwind\"",
-    "dev:tailwind": "npx tailwindcss -i agarcia/input.css -o agarcia/static/style.css --watch",
-    "dev:flask": "rye run flask --app agarcia run --debug",
-    "start": "rye run gunicorn -w 4 'agarcia:create_app()'"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.1",
-    "typescript": "^5.2.2"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@catppuccin/tailwindcss": "^0.1.6",
-    "tailwindcss": "^3.3.3"
+    "@catppuccin/tailwindcss": "^1.0.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.14",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vite": "^7.1.7"
   }
 }

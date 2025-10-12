@@ -1,26 +1,19 @@
-const plugin = require('tailwindcss/plugin');
-
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./agarcia/templates/**/*.{html,js}"],
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
-    fontFamily: {
-      sans: ["Graphik", "sans-serif"],
-      serif: ["Merriweather", "serif"],
-    },
     extend: {
-      spacing: {
-        "8xl": "96rem",
-        "9xl": "128rem",
-      },
-      borderRadius: {
-        "4xl": "2rem",
-      },
+      colors: {
+        'background': '#1e1e2e',
+        'text': '#cdd6f4',
+        'primary': '#cba6f7',
+        'secondary': '#f5c2e7',
+        'surface': '#313244',
+      }
     },
   },
-  plugins: [require("@catppuccin/tailwindcss")({
-      prefix: "ctp",
-      defaultFlavour: "mocha",
-  })],
-};
-
+  plugins: [],
+}
