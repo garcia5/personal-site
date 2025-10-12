@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
           <img className="h-8 w-8" src="/github.svg" alt="GitHub" />
         </a>
         <a
-          href="https://www.linkedin.com/in/alexander-garcia-840a41149/"
+          href="https://www.linkedin.com/in/alexander-j-garcia"
           target="_blank"
           rel="noopener noreferrer"
           className="mx-2"
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
         <p>
           <span className="pr-1">This site was built using:</span>
           {technologies.map((tech, index) => (
-            <span key={tech.name} className="ml-2">
+            <span key={tech.name}>
               <a
                 href={tech.url}
                 target="_blank"
