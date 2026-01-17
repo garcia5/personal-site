@@ -10,7 +10,7 @@ const technologies = [
 
 const Footer: React.FC = () => {
   return (
-    <div className="footer py-4 bg-ctp-surface0">
+    <div className="footer py-4 bg-ctp-surface0 px-4">
       <div className="flex flex-row items-center justify-center w-full">
         <a
           href="https://github.com/garcia5"
