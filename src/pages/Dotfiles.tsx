@@ -49,13 +49,17 @@ const Dotfiles: React.FC = () => {
             </a>
             {config.image && (
               <div
-                className="bg-ctp-surface0 p-2 rounded-lg shadow-md object-cover cursor-pointer my-2"
-                onClick={() => setSelectedImage(config.image)}
+                className="bg-ctp-surface0 p-2 rounded-lg shadow-md object-cover cursor-default [@media(pointer:fine)]:cursor-pointer my-2"
+                onClick={() => {
+                  if (window.matchMedia('(pointer: fine)').matches) {
+                    setSelectedImage(config.image)
+                  }
+                }}
               >
                 <img
                   src={config.image}
                   alt={`${config.display} Showcase`}
-                  className="rounded-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+                  className="rounded-md transition-transform duration-300 ease-in-out transform [@media(pointer:fine)]:hover:scale-105"
                 />
               </div>
             )}
