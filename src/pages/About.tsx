@@ -2,9 +2,16 @@ import React from 'react'
 
 const workExperience = [
   {
+    company: 'Velocity Black @ Capital One',
+    dates: 'Jan. 2026 - Present',
+    title: 'Senior Software Engineer',
+    description:
+      'Improving member experience and agent efficiency at Velocity Black',
+  },
+  {
     company: 'Capital One',
-    dates: 'Jan. 2024 - Present',
-    title: 'Senior Software/Data Engineer',
+    dates: 'Jan. 2024 - Jan. 2026',
+    title: 'Senior Data Engineer',
     description: "Building storage solutions for Capital One's data lake",
   },
   {
@@ -76,9 +83,9 @@ const About: React.FC = () => {
               <img
                 src={item.image}
                 alt={item.alt}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 md:group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0">
+              <div className="bg-ctp-surface0 p-4 flex items-center justify-center md:absolute md:inset-0 md:bg-black md:opacity-60 md:p-0 md:transition-opacity md:duration-300 md:group-hover:opacity-0">
                 <h3 className="font-bold text-2xl text-ctp-text">
                   {item.title}
                 </h3>
