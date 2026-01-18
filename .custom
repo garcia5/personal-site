@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+# syntax highlighting for container
+syntax_highlights="/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+[ -f "$syntax_highlights" ] && source "$syntax_highlights"
