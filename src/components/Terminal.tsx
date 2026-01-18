@@ -47,7 +47,13 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     fitAddonRef.current = fitAddon
 
     // Connect to WebSocket
-    const ws = new WebSocket('ws://localhost:3001')
+    // In production, Nginx will proxy /ws to the backend
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.host
+    const defaultUrl = `${protocol}//${host}/ws`
+
+    const wsUrl = import.meta.env.VITE_WS_URL || defaultUrl
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onopen = () => {
