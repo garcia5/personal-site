@@ -26,5 +26,5 @@ jobs:
             git reset --hard
             git clean -fd
             git pull origin main
-            chmod +x deploy/setup.sh
-            ./deploy/setup.sh
+            chmod +x deploy/refresh-server.sh
+            ./deploy/refresh-server.sh
