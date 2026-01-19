@@ -100,14 +100,20 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     }
 
     const reportError = (msg?: string) => {
-      term.write('\r\n\x1b[1;31mConnection Error\x1b[0m\r\n')
-      term.write(
-        '\x1b[1;33mUnable to connect to the interactive terminal backend.\x1b[0m\r\n'
+      term.writeln('')
+      term.writeln('\x1b[1;31m⚠ Connection Error\x1b[0m')
+      term.writeln(
+        '\x1b[33mUnable to connect to the interactive terminal backend.\x1b[0m'
       )
-      if (msg) term.write(`Details: ${msg}\r\n`)
-      term.write(
-        '\x1b[1;30m(The server might be sleeping or offline to save resources)\x1b[0m\r\n'
+      if (msg) {
+        term.writeln(`\x1b[2;37mDetails: ${msg}\x1b[0m`)
+      }
+      term.writeln('')
+      term.writeln(
+        '\x1b[1;34mℹ Tip:\x1b[0m \x1b[90mThe server might be sleeping or offline to save resources.'
       )
+      term.writeln('Try refreshing the page in a few moments.\x1b[0m')
+      term.writeln('')
     }
 
     ws.onclose = (event) => {
@@ -166,7 +172,7 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     <div className="relative w-full h-[600px] rounded-lg shadow-xl overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
       <div
         ref={terminalRef}
-        className={`w-full h-full transition-all duration-300 ${
+        className={`w-full h-full p-2 transition-all duration-300 ${
           isFocused ? 'opacity-100 blur-0' : 'opacity-60 blur-[1px]'
         }`}
       />
