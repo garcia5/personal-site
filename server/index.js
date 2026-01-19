@@ -19,10 +19,10 @@ wss.on('connection', (ws) => {
   // Spawn the docker container
   // We use --rm to clean up the container after exit
   // SECURITY: Resource limits to prevent abuse
-  const shell = '/bin/zsh'
+  const shell = '/bin/bash'
   const args = [
     '-c',
-    `/usr/local/bin/docker run -it --rm -e TERM=xterm-256color --memory=512m --cpus=1.0 --pids-limit=64 ${IMAGE_NAME}`,
+    `/usr/bin/docker run -it --rm -e TERM=xterm-256color --memory=512m --cpus=1.0 --pids-limit=64 ${IMAGE_NAME}`,
   ]
 
   const term = pty.spawn(shell, args, {
