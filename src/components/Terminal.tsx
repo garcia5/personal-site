@@ -84,21 +84,27 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       }
     }
 
+    const reportError = (msg?: string) => {
+      term.write('\r\n\x1b[1;31mConnection Error\x1b[0m\r\n')
+      term.write(
+        '\x1b[1;33mUnable to connect to the interactive terminal backend.\x1b[0m\r\n'
+      )
+      if (msg) term.write(`Details: ${msg}\r\n`)
+      term.write(
+        '\x1b[1;30m(The server might be sleeping or offline to save resources)\x1b[0m\r\n'
+      )
+    }
+
     ws.onclose = (event) => {
       if (event.wasClean) {
-        term.writeln('\r\n\x1b[1;31mConnection closed.\x1b[0m')
+        term.writeln('\r\n\x1b[1;32mSession ended normally.\x1b[0m')
       } else {
-        term.writeln('\r\n\x1b[1;31mTerminal session terminated.\x1b[0m')
+        reportError(`Closed unexpectedly (Code: ${event.code})`)
       }
     }
 
     ws.onerror = () => {
-      term.writeln(
-        '\r\n\x1b[1;31mError: Could not connect to the terminal backend.\x1b[0m'
-      )
-      term.writeln(
-        '\x1b[1;33mThis might be because the terminal server is offline or your browser blocked the connection.\x1b[0m'
-      )
+      reportError()
     }
 
     // Client -> Server
