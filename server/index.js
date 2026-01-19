@@ -22,7 +22,7 @@ wss.on('connection', (ws) => {
   const shell = '/bin/bash'
   const args = [
     '-c',
-    `/usr/bin/docker run -it --rm -e TERM=xterm-256color --memory=512m --cpus=1.0 --pids-limit=64 ${IMAGE_NAME}`,
+    `/usr/bin/docker run -it --rm -e TERM=xterm-256color -w /home/dev/.dotfiles --memory=512m --cpus=1.0 --pids-limit=64 ${IMAGE_NAME}`,
   ]
 
   const term = pty.spawn(shell, args, {

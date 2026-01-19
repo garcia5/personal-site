@@ -51,8 +51,8 @@ exec /usr/local/bin/fzf "\$@"
 EOF
 chmod +x "$RESTRICTED_DIR/fzf"
 
-# 5. Enforce Restricted PATH in .zshrc
-# We append this to the end so it overrides previous path settings
-echo "" >> /home/dev/.zshrc
-echo "# --- RESTRICTED SHELL SETUP ---" >> /home/dev/.zshrc
-echo 'export PATH="$HOME/bin:/usr/local/bin/restricted"' >> /home/dev/.zshrc
+# 5. Enforce Restricted PATH System-Wide
+# We append this to /etc/zsh/zshenv so it runs for all zsh sessions and is harder for the user to override permanently
+echo "" >> /etc/zsh/zshenv
+echo "# --- RESTRICTED SHELL SETUP ---" >> /etc/zsh/zshenv
+echo 'export PATH="$HOME/bin:/usr/local/bin/restricted"' >> /etc/zsh/zshenv
