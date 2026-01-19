@@ -23,6 +23,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd personal-site
+            git reset --hard
+            git clean -fd
             git pull origin main
             chmod +x deploy/setup.sh
             ./deploy/setup.sh
