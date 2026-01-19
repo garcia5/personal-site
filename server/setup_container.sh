@@ -57,7 +57,7 @@ function setup_nvim {
     echo "Setting up Neovim..."
     mkdir -p "$NVIM_HOME"
     replace_dir "$NVIM_HOME" "$DF_HOME/files/nvim"
-    
+
     # Python Provider
     if [[ ! -d "$HOME/py3nvim" ]]; then
         python3 -m venv "$HOME/py3nvim"
@@ -75,7 +75,7 @@ function setup_zsh {
     fi
 
     DEFAULT_ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
-    
+
     # Plugins
     local vi_mode="${ZSH_CUSTOM:-$DEFAULT_ZSH_CUSTOM}/plugins/zsh-vi-mode"
     if [[ ! -d "${vi_mode}" ]]; then
@@ -92,10 +92,10 @@ function setup_zsh {
     replace_file "$HOME/.aliases" "$DF_HOME/files/aliases"
     replace_file "$HOME/.functions" "$DF_HOME/files/functions"
     replace_file "$HOME/.fzf.custom" "$DF_HOME/files/fzf.custom"
-    
+
     # Theme
     mkdir -p "${ZSH_CUSTOM:-$DEFAULT_ZSH_CUSTOM}/themes"
-    replace_file "${ZSH_CUSTOM:-$DEFAULT_ZSH_CUSTOM}/themes/quarter-life.zsh-theme" "$DF_HOME/files/quarter-life.zsh-theme" 
+    replace_file "${ZSH_CUSTOM:-$DEFAULT_ZSH_CUSTOM}/themes/quarter-life.zsh-theme" "$DF_HOME/files/quarter-life.zsh-theme"
 }
 
 function install_scripts {
@@ -133,7 +133,7 @@ nvim --headless "+Lazy! sync" +qa
 if [ -n "$TREESITTER_INSTALL" ]; then
     echo "Installing Treesitter parsers: $TREESITTER_INSTALL"
     # We use a loop or just pass them all. TSInstall accepts multiple args.
-    # Note: We need to ensure nvim can run this. 
+    # Note: We need to ensure nvim can run this.
     nvim --headless "+TSInstallSync $TREESITTER_INSTALL" +qa
 fi
 
