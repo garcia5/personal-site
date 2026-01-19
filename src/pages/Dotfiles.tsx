@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-// import Terminal from '../components/Terminal'
+import Terminal from '../components/Terminal'
 
 const configData = [
   {
@@ -80,27 +80,24 @@ const Dotfiles: React.FC = () => {
       )}
 
       {/* Terminal View */}
-      {/* <div */}
-      {/*   className="w-full" */}
-      {/*   style={{ */}
-      {/*     display: viewMode === 'terminal' && !isMobile ? 'block' : 'none', */}
-      {/*   }} */}
-      {/* > */}
-      {/*   <div className="text-center mb-6"> */}
-      {/*     <p className="text-ctp-subtext0 max-w-2xl mx-auto"> */}
-      {/*       This is a real, ephemeral Linux container running my actual */}
-      {/*       dotfiles. Try{' '} */}
-      {/*       <code className="bg-ctp-surface0 px-1 rounded">ls</code>, */}
-      {/*       <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or */}
-      {/*       <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how */}
-      {/*       I work. */}
-      {/*     </p> */}
-      {/*   </div> */}
-      {/*   <Terminal isVisible={viewMode === 'terminal' && !isMobile} /> */}
-      {/* </div> */}
-      {viewMode === 'terminal' && (
-        <div className="w-full text-center mb-6">Coming Soon</div>
-      )}
+      <div
+        className="w-full terminal-container"
+        style={{
+          display: viewMode === 'terminal' && !isMobile ? 'block' : 'none',
+        }}
+      >
+        <div className="text-center mb-6">
+          <p className="text-ctp-subtext0 max-w-2xl mx-auto">
+            This is a real, ephemeral Linux container running my actual
+            dotfiles. Try{' '}
+            <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
+            <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
+            <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how
+            I work.
+          </p>
+        </div>
+        <Terminal isVisible={viewMode === 'terminal' && !isMobile} />
+      </div>
 
       {/* Gallery View */}
       <div style={{ display: viewMode === 'gallery' ? 'block' : 'none' }}>

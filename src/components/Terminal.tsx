@@ -54,6 +54,13 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     xtermRef.current = term
     fitAddonRef.current = fitAddon
 
+    // Handle resize via term.onResize to sync with backend
+    term.onResize(({ cols, rows }) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'resize', cols, rows }))
+      }
+    })
+
     // Connect to WebSocket
     // Default to localhost for development, but in production VITE_WS_URL should be set
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -76,13 +83,16 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       // Force a fit and sync size immediately on connection
       setTimeout(() => {
         fitAddon.fit()
-        ws.send(
-          JSON.stringify({
-            type: 'resize',
-            cols: term.cols,
-            rows: term.rows,
-          })
-        )
+        // Manually send resize once to ensure backend is synced even if onResize didn't fire
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(
+            JSON.stringify({
+              type: 'resize',
+              cols: term.cols,
+              rows: term.rows,
+            })
+          )
+        }
       }, 100)
     }
 
@@ -135,23 +145,18 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       }
     })
 
-    // Handle resize
-    const handleResize = () => {
-      fitAddon.fit()
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: 'resize',
-            cols: term.cols,
-            rows: term.rows,
-          })
-        )
-      }
-    }
-    window.addEventListener('resize', handleResize)
+    // Handle resize with ResizeObserver for better reliability
+    const resizeObserver = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => {
+        if (terminalRef.current) {
+          fitAddon.fit()
+        }
+      })
+    })
+    resizeObserver.observe(terminalRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
       ws.close()
       term.dispose()
     }
