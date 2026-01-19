@@ -55,11 +55,15 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     fitAddonRef.current = fitAddon
 
     // Connect to WebSocket
+    // Default to localhost for development, but in production VITE_WS_URL should be set
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
-    const defaultUrl = `${protocol}//${host}/ws`
+    const defaultUrl =
+      window.location.hostname === 'localhost'
+        ? 'ws://localhost:3001'
+        : `${protocol}//${host}/ws`
 
-    // Use environment variable if set, otherwise fallback to local /ws path
+    // Use environment variable if set, otherwise fallback to dynamic default
     const wsUrl = import.meta.env.VITE_WS_URL || defaultUrl
 
     console.log('Connecting to terminal backend:', wsUrl)
@@ -68,15 +72,18 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
 
     ws.onopen = () => {
       term.writeln('\x1b[1;32mConnected to interactive backend!\x1b[0m')
-      // Sync initial size
-      fitAddon.fit()
-      ws.send(
-        JSON.stringify({
-          type: 'resize',
-          cols: term.cols,
-          rows: term.rows,
-        })
-      )
+
+      // Force a fit and sync size immediately on connection
+      setTimeout(() => {
+        fitAddon.fit()
+        ws.send(
+          JSON.stringify({
+            type: 'resize',
+            cols: term.cols,
+            rows: term.rows,
+          })
+        )
+      }, 100)
     }
 
     ws.onmessage = (event) => {
@@ -150,7 +157,8 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       setTimeout(() => {
         fitAddonRef.current?.fit()
         xtermRef.current?.focus()
-      }, 50)
+        xtermRef.current?.refresh(0, xtermRef.current.rows - 1)
+      }, 150)
     }
   }, [isVisible])
 
