@@ -88,7 +88,9 @@ function setup_zsh {
     fi
 
     # Configs
-    replace_file "$HOME/.zshrc" "$DF_HOME/files/zshrc"
+    # Create a wrapper .zshrc to suppress readonly PATH errors from the real config
+    echo "source $DF_HOME/files/zshrc 2>/dev/null" > "$HOME/.zshrc"
+    
     replace_file "$HOME/.aliases" "$DF_HOME/files/aliases"
     replace_file "$HOME/.functions" "$DF_HOME/files/functions"
     replace_file "$HOME/.fzf.custom" "$DF_HOME/files/fzf.custom"
