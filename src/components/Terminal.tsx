@@ -12,6 +12,7 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   const xtermRef = useRef<XTerminal | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const [isFocused, setIsFocused] = React.useState(false)
 
   useEffect(() => {
     if (!terminalRef.current) return
@@ -42,6 +43,13 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     term.loadAddon(fitAddon)
     term.open(terminalRef.current)
     fitAddon.fit()
+
+    // Handle Focus State
+    // xterm.textarea is the hidden input that receives focus
+    if (term.textarea) {
+      term.textarea.onfocus = () => setIsFocused(true)
+      term.textarea.onblur = () => setIsFocused(false)
+    }
 
     xtermRef.current = term
     fitAddonRef.current = fitAddon
@@ -147,10 +155,24 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   }, [isVisible])
 
   return (
-    <div
-      ref={terminalRef}
-      className="w-full h-[600px] bg-[#1e1e2e] rounded-lg shadow-xl p-2 overflow-hidden border border-[#45475a]"
-    />
+    <div className="relative w-full h-[600px] rounded-lg shadow-xl overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
+      <div
+        ref={terminalRef}
+        className={`w-full h-full transition-all duration-300 ${
+          isFocused ? 'opacity-100 blur-0' : 'opacity-60 blur-[1px]'
+        }`}
+      />
+      {!isFocused && (
+        <div
+          className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+          onClick={() => xtermRef.current?.focus()}
+        >
+          <div className="bg-ctp-base/80 px-4 py-2 rounded-lg text-ctp-text font-bold border border-ctp-surface1 shadow-lg hover:scale-105 transition-transform">
+            Click to Activate
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
