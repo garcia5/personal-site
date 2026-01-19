@@ -17,5 +17,8 @@
     "node-pty": "^1.1.0",
     "node-pty-prebuilt-multiarch": "^0.10.1-pre.5",
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }
