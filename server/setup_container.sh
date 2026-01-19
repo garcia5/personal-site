@@ -51,20 +51,18 @@ function install_colorscheme {
                 > "$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme"
         bat cache --build
     fi
+
+    if command -v eza; then
+        mkdir -p "${CONFIG_HOME}/eza"
+        curl -o- https://raw.githubusercontent.com/catppuccin/eza/refs/heads/main/themes/mocha/catppuccin-mocha-blue.yml \
+            > "${CONFIG_HOME}/eza/theme.yml"
+    fi
 }
 
 function setup_nvim {
     echo "Setting up Neovim..."
     mkdir -p "$NVIM_HOME"
     replace_dir "$NVIM_HOME" "$DF_HOME/files/nvim"
-
-    # Python Provider
-    if [[ ! -d "$HOME/py3nvim" ]]; then
-        python3 -m venv "$HOME/py3nvim"
-        source "$HOME/py3nvim/bin/activate"
-        pip install --upgrade pip pynvim
-        deactivate
-    fi
 }
 
 function setup_zsh {
@@ -90,7 +88,7 @@ function setup_zsh {
     # Configs
     # Create a wrapper .zshrc to suppress readonly PATH errors from the real config
     echo "source $DF_HOME/files/zshrc 2>/dev/null" > "$HOME/.zshrc"
-    
+
     replace_file "$HOME/.aliases" "$DF_HOME/files/aliases"
     replace_file "$HOME/.functions" "$DF_HOME/files/functions"
     replace_file "$HOME/.fzf.custom" "$DF_HOME/files/fzf.custom"
@@ -130,13 +128,5 @@ replace_file "$HOME/.wezterm.lua" "$DF_HOME/files/wezterm.lua"
 echo "Bootstrapping Neovim plugins..."
 # Sync Lazy plugins first
 nvim --headless "+Lazy! sync" +qa
-
-# Install Treesitter parsers if the variable is set
-if [ -n "$TREESITTER_INSTALL" ]; then
-    echo "Installing Treesitter parsers: $TREESITTER_INSTALL"
-    # We use a loop or just pass them all. TSInstall accepts multiple args.
-    # Note: We need to ensure nvim can run this.
-    nvim --headless "+TSInstallSync $TREESITTER_INSTALL" +qa
-fi
 
 echo "Container Setup Complete!"

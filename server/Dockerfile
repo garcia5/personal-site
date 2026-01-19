@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     zsh-syntax-highlighting \
     git-delta \
+    eza \
     && rm -rf /var/lib/apt/lists/*
 
 # Install latest fzf
