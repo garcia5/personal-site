@@ -19,7 +19,7 @@ sudo docker build -t alexander-personal-site-term .
 # 4. Install & Start Backend
 echo "Starting Backend..."
 npm install
-npm install -g pm2
+sudo npm install -g pm2
 # Stop existing process if any
 pm2 delete personal-site-backend || true
 pm2 start index.js --name "personal-site-backend"
