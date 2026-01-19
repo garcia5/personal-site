@@ -27,10 +27,27 @@ cd ..
 
 # 5. Configure Nginx (Backend Proxy Only)
 echo "Configuring Nginx..."
+DOMAIN="terminal.alexjgarcia.com"
+
+# Copy the HTTP template
 sudo cp deploy/nginx-backend-only.conf /etc/nginx/sites-available/personal-site
+# Update server_name to real domain
+sudo sed -i "s/server_name _;/server_name $DOMAIN;/" /etc/nginx/sites-available/personal-site
+
 sudo ln -sf /etc/nginx/sites-available/personal-site /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo systemctl restart nginx
 
+# 6. Enable SSL (Certbot)
+echo "Setting up SSL..."
+if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    echo "SSL certificate already exists for $DOMAIN"
+    # Ensure Nginx uses it (in case we overwrote config with HTTP template)
+    # We run certbot again to reinstall the redirect/ssl block without getting a new cert
+    sudo certbot install --nginx -d $DOMAIN --redirect --non-interactive
+else
+    echo "Requesting new SSL certificate..."
+    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email agarcia1359@gmail.com --redirect
+fi
+
 echo "Backend Deployment Complete!"
-echo "Don't forget to run certbot if you haven't yet: sudo certbot --nginx -d terminal.alexjgarcia.com"
