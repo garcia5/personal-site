@@ -22,4 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-\nTODO.md
+TODO.md
+DEPLOYMENT.md
