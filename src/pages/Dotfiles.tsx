@@ -64,18 +64,18 @@ const Dotfiles: React.FC = () => {
                 : 'bg-ctp-surface0 text-ctp-text hover:bg-ctp-surface1'
             }`}
           >
-            Interactive Terminal
+            Live Sandbox
           </button>
         </div>
       ) : (
         <p className="text-center text-sm text-ctp-subtext0 mb-8 italic">
-          (Interactive terminal available on desktop)
+          (Interactive sandbox available on desktop)
         </p>
       )}
 
       {isMobile && viewMode === 'gallery' && (
         <p className="text-center text-sm text-ctp-subtext0 mb-4 italic">
-          (Interactive terminal is available on desktop)
+          (Interactive sandbox is available on desktop)
         </p>
       )}
 
@@ -86,12 +86,16 @@ const Dotfiles: React.FC = () => {
           display: viewMode === 'terminal' && !isMobile ? 'block' : 'none',
         }}
       >
-        <p className="text-center mb-4 text-ctp-subtext0">
-          Explore my configuration live! Try commands like{' '}
-          <code className="bg-ctp-surface0 px-1 rounded">ls</code>,{' '}
-          <code className="bg-ctp-surface0 px-1 rounded">cd</code>, or{' '}
-          <code className="bg-ctp-surface0 px-1 rounded">nvim .zshrc</code>
-        </p>
+        <div className="text-center mb-6">
+          <p className="text-ctp-subtext0 max-w-2xl mx-auto">
+            This is a real, ephemeral Linux container running my actual
+            dotfiles. Try{' '}
+            <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
+            <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
+            <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how
+            I work.
+          </p>
+        </div>
         <Terminal isVisible={viewMode === 'terminal' && !isMobile} />
       </div>
 
