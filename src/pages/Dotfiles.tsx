@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Terminal from '../components/Terminal'
+// import Terminal from '../components/Terminal'
 
 const configData = [
   {
@@ -39,6 +39,12 @@ const Dotfiles: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  React.useEffect(() => {
+    if (isMobile) {
+      setViewMode('gallery')
+    }
+  }, [isMobile])
+
   return (
     <div className="text-left max-w-4xl mx-auto mb-40 w-full px-4">
       <h1 className="text-3xl font-bold text-center pb-4">Dotfiles</h1>
@@ -73,31 +79,28 @@ const Dotfiles: React.FC = () => {
         </p>
       )}
 
-      {isMobile && viewMode === 'gallery' && (
-        <p className="text-center text-sm text-ctp-subtext0 mb-4 italic">
-          (Interactive sandbox is available on desktop)
-        </p>
-      )}
-
       {/* Terminal View */}
-      <div
-        className="w-full"
-        style={{
-          display: viewMode === 'terminal' && !isMobile ? 'block' : 'none',
-        }}
-      >
-        <div className="text-center mb-6">
-          <p className="text-ctp-subtext0 max-w-2xl mx-auto">
-            This is a real, ephemeral Linux container running my actual
-            dotfiles. Try{' '}
-            <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
-            <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
-            <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how
-            I work.
-          </p>
-        </div>
-        <Terminal isVisible={viewMode === 'terminal' && !isMobile} />
-      </div>
+      {/* <div */}
+      {/*   className="w-full" */}
+      {/*   style={{ */}
+      {/*     display: viewMode === 'terminal' && !isMobile ? 'block' : 'none', */}
+      {/*   }} */}
+      {/* > */}
+      {/*   <div className="text-center mb-6"> */}
+      {/*     <p className="text-ctp-subtext0 max-w-2xl mx-auto"> */}
+      {/*       This is a real, ephemeral Linux container running my actual */}
+      {/*       dotfiles. Try{' '} */}
+      {/*       <code className="bg-ctp-surface0 px-1 rounded">ls</code>, */}
+      {/*       <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or */}
+      {/*       <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how */}
+      {/*       I work. */}
+      {/*     </p> */}
+      {/*   </div> */}
+      {/*   <Terminal isVisible={viewMode === 'terminal' && !isMobile} /> */}
+      {/* </div> */}
+      {viewMode === 'terminal' && (
+        <div className="w-full text-center mb-6">Coming Soon</div>
+      )}
 
       {/* Gallery View */}
       <div style={{ display: viewMode === 'gallery' ? 'block' : 'none' }}>
