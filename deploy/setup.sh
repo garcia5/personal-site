@@ -21,8 +21,8 @@ echo "Starting Backend..."
 npm install
 sudo npm install -g pm2 --force
 # Stop existing process if any
-pm2 delete personal-site-backend || true
-pm2 start index.js --name "personal-site-backend"
+sudo pm2 delete personal-site-backend || true
+sudo pm2 start index.js --name "personal-site-backend"
 cd ..
 
 # 5. Configure Nginx (Backend Proxy Only)
