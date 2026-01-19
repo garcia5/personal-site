@@ -13,9 +13,10 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   const wsRef = useRef<WebSocket | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
   const [isFocused, setIsFocused] = React.useState(false)
+  const [shouldConnect, setShouldConnect] = React.useState(false)
 
   useEffect(() => {
-    if (!terminalRef.current) return
+    if (!terminalRef.current || !shouldConnect) return
 
     // Initialize xterm
     const term = new XTerminal({
@@ -160,7 +161,7 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       ws.close()
       term.dispose()
     }
-  }, [])
+  }, [shouldConnect])
 
   useEffect(() => {
     if (isVisible && xtermRef.current && fitAddonRef.current) {
@@ -171,7 +172,14 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
         xtermRef.current?.refresh(0, xtermRef.current.rows - 1)
       }, 150)
     }
-  }, [isVisible])
+  }, [isVisible, shouldConnect])
+
+  const handleFocus = () => {
+    xtermRef.current?.focus()
+    if (!shouldConnect) {
+      setShouldConnect(true)
+    }
+  }
 
   return (
     <div className="relative w-full h-[600px] rounded-lg shadow-xl overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
@@ -184,7 +192,7 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       {!isFocused && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
-          onClick={() => xtermRef.current?.focus()}
+          onClick={handleFocus}
         >
           <div className="bg-ctp-base/80 px-4 py-2 rounded-lg text-ctp-text font-bold border border-ctp-surface1 shadow-lg hover:scale-105 transition-transform">
             Click to Activate
