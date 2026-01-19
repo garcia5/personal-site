@@ -47,17 +47,19 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     fitAddonRef.current = fitAddon
 
     // Connect to WebSocket
-    // In production, Nginx will proxy /ws to the backend
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
     const defaultUrl = `${protocol}//${host}/ws`
 
+    // Use environment variable if set, otherwise fallback to local /ws path
     const wsUrl = import.meta.env.VITE_WS_URL || defaultUrl
+
+    console.log('Connecting to terminal backend:', wsUrl)
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onopen = () => {
-      term.writeln('\x1b[1;32mConnected to backend...\x1b[0m')
+      term.writeln('\x1b[1;32mConnected to interactive backend!\x1b[0m')
       // Sync initial size
       fitAddon.fit()
       ws.send(
@@ -82,14 +84,20 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       }
     }
 
-    ws.onclose = () => {
-      term.writeln('\r\n\x1b[1;31mConnection closed.\x1b[0m')
+    ws.onclose = (event) => {
+      if (event.wasClean) {
+        term.writeln('\r\n\x1b[1;31mConnection closed.\x1b[0m')
+      } else {
+        term.writeln('\r\n\x1b[1;31mTerminal session terminated.\x1b[0m')
+      }
     }
 
-    ws.onerror = (err) => {
-      console.error('WebSocket error', err)
+    ws.onerror = () => {
       term.writeln(
-        '\r\n\x1b[1;31mConnection error. Is the server running?\x1b[0m'
+        '\r\n\x1b[1;31mError: Could not connect to the terminal backend.\x1b[0m'
+      )
+      term.writeln(
+        '\x1b[1;33mThis might be because the terminal server is offline or your browser blocked the connection.\x1b[0m'
       )
     }
 
