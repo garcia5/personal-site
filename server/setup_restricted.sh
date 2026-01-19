@@ -52,7 +52,8 @@ EOF
 chmod +x "$RESTRICTED_DIR/fzf"
 
 # 5. Enforce Restricted PATH System-Wide
-# We append this to /etc/zsh/zshenv so it runs for all zsh sessions and is harder for the user to override permanently
+# We append this to /etc/zsh/zshenv so it runs for all zsh sessions.
+# We use 'typeset -r' to make PATH read-only, preventing the user from overriding it.
 echo "" >> /etc/zsh/zshenv
 echo "# --- RESTRICTED SHELL SETUP ---" >> /etc/zsh/zshenv
-echo 'export PATH="$HOME/bin:/usr/local/bin/restricted"' >> /etc/zsh/zshenv
+echo 'typeset -r PATH="$HOME/bin:/usr/local/bin/restricted"' >> /etc/zsh/zshenv
