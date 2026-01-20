@@ -184,11 +184,12 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   return (
     <div className="relative w-full h-[600px] rounded-lg shadow-2xl shadow-ctp-mauve/30 overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
       <div
-        ref={terminalRef}
         className={`w-full h-full p-2 transition-all duration-300 ${
           isFocused ? 'opacity-100 blur-0' : 'opacity-60 blur-[1px]'
         }`}
-      />
+      >
+        <div ref={terminalRef} className="w-full h-full overflow-hidden" />
+      </div>
       {!isFocused && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
