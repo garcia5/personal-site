@@ -10,4 +10,5 @@ npm run build
 sudo docker build -t alexander-personal-site-term .
 
 # 3. Restart webserver to pick up new image and code
-sudo pm2 restart personal-site-backend
+sudo pm2 delete personal-site-backend || true
+sudo pm2 start dist/index.js --name "personal-site-backend"
