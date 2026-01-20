@@ -19,10 +19,11 @@ sudo docker build -t alexander-personal-site-term .
 # 4. Install & Start Backend
 echo "Starting Backend..."
 npm install
+npm run build
 sudo npm install -g pm2 --force
 # Stop existing process if any
 sudo pm2 delete personal-site-backend || true
-sudo pm2 start index.js --name "personal-site-backend"
+sudo pm2 start dist/index.js --name "personal-site-backend"
 cd ..
 
 # 5. Configure Nginx (Backend Proxy Only)

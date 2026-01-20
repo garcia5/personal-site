@@ -1,9 +1,13 @@
 #!/bin/bash
 set -e
 
-# 1. Rebuild docker container
+# 1. Update Server Code
 cd server
+npm install
+npm run build
+
+# 2. Rebuild docker container
 sudo docker build -t alexander-personal-site-term .
 
-# 2. Restart webserver to pick up new image
+# 3. Restart webserver to pick up new image and code
 sudo pm2 restart personal-site-backend

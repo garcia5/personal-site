@@ -8,4 +8,4 @@ echo "Starting backend server with hot-reloading..."
 # Local macOS configuration
 export SHELL_PATH="/bin/zsh"
 export DOCKER_PATH="/usr/local/bin/docker"
-./node_modules/.bin/nodemon index.js
+./node_modules/.bin/nodemon --exec ./node_modules/.bin/ts-node index.ts

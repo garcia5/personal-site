@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Terminal from '../components/Terminal'
 
 const configData = [
@@ -29,7 +30,22 @@ const configData = [
 
 const Dotfiles: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'gallery' | 'terminal'>('gallery')
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const viewModeParam = searchParams.get('view')
+  const viewMode = viewModeParam === 'terminal' ? 'terminal' : 'gallery'
+
+  const setViewMode = useCallback(
+    (mode: 'gallery' | 'terminal') => {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev)
+        newParams.set('view', mode)
+        return newParams
+      })
+    },
+    [setSearchParams]
+  )
+
   const [isMobile, setIsMobile] = useState(false)
 
   React.useEffect(() => {
@@ -43,7 +59,7 @@ const Dotfiles: React.FC = () => {
     if (isMobile) {
       setViewMode('gallery')
     }
-  }, [isMobile])
+  }, [isMobile, setViewMode])
 
   return (
     <div className="text-left max-w-4xl mx-auto mb-40 w-full px-4">
