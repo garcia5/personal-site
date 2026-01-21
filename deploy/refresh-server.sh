@@ -6,7 +6,7 @@ cd server
 npm install
 npm run build
 
-# 2. Rebuild docker container
+# 2. Rebuild docker container to pick up any changes to dotfiles
 sudo docker build -t alexander-personal-site-term .
 
 # 3. Restart webserver to pick up new image and code
