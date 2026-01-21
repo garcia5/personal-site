@@ -15,6 +15,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Check Initial Instance State and Start
+        id: check-state
+        run: |
+          INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}
+          # Get current state
+          STATE=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[0].Instances[0].State.Name" --output text)
+          echo "Initial state: $STATE"
+          echo "INITIAL_STATE=$STATE" >> $GITHUB_ENV
+
+          if [ "$STATE" != "running" ]; then
+            echo "Instance is not running. Starting..."
+            aws ec2 start-instances --instance-ids $INSTANCE_ID
+            echo "Waiting for instance to be running..."
+            aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          fi
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -28,3 +51,9 @@ jobs:
             git pull origin main
             chmod +x deploy/refresh-server.sh
             ./deploy/refresh-server.sh
+
+      - name: Restore Instance State (Stop if it was originally stopped)
+        if: always() && env.INITIAL_STATE == 'stopped'
+        run: |
+          echo "Instance was originally stopped. Returning to sleep..."
+          aws ec2 stop-instances --instance-ids ${{ secrets.EC2_INSTANCE_ID }}

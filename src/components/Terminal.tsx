@@ -12,13 +12,23 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   const xtermRef = useRef<XTerminal | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const hasReportedErrorRef = useRef(false)
   const [isFocused, setIsFocused] = React.useState(false)
   const [shouldConnect, setShouldConnect] = React.useState(false)
 
-  useEffect(() => {
-    if (!terminalRef.current || !shouldConnect) return
+  const isServerSleeping = (() => {
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      hour12: false,
+    })
+    const hour = parseInt(formatter.format(now), 10)
+    // hour < 8 (0-7) or hour >= 20 (20-23)
+    return hour < 8 || hour >= 20
+  })()
 
-    // Initialize xterm
+  const initTerminal = () => {
     const term = new XTerminal({
       cursorBlink: true,
       cursorStyle: 'block',
@@ -39,14 +49,54 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
         white: '#bac2de',
       },
     })
-
     const fitAddon = new FitAddon()
     term.loadAddon(fitAddon)
+    return { term, fitAddon }
+  }
+
+  const reportError = (term: XTerminal, msg?: string) => {
+    if (hasReportedErrorRef.current) return
+    hasReportedErrorRef.current = true
+
+    term.writeln('')
+
+    if (isServerSleeping) {
+      term.writeln(
+        '\x1b[1;34mℹ Status:\x1b[0m \x1b[90mThe backend server is currently sleeping.'
+      )
+      term.writeln('Active Hours: 8:00 AM - 8:00 PM (New York Time)')
+      term.writeln('Please check back later!\x1b[0m')
+    } else {
+      term.writeln('\x1b[1;31m⚠ Connection Error\x1b[0m')
+      term.writeln(
+        '\x1b[33mUnable to connect to the interactive terminal backend.\x1b[0m'
+      )
+      if (msg) {
+        term.writeln(`\x1b[2;37mDetails: ${msg}\x1b[0m`)
+      }
+      term.writeln('')
+      term.writeln('Try refreshing the page in a few moments.\x1b[0m')
+    }
+    term.writeln('')
+  }
+
+  const getWsUrl = () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.host
+    const defaultUrl =
+      window.location.hostname === 'localhost'
+        ? 'ws://localhost:3001'
+        : `${protocol}//${host}/ws`
+    return import.meta.env.VITE_WS_URL || defaultUrl
+  }
+
+  useEffect(() => {
+    if (!terminalRef.current || !shouldConnect) return
+
+    const { term, fitAddon } = initTerminal()
     term.open(terminalRef.current)
     fitAddon.fit()
 
-    // Handle Focus State
-    // xterm.textarea is the hidden input that receives focus
     if (term.textarea) {
       term.textarea.onfocus = () => setIsFocused(true)
       term.textarea.onblur = () => setIsFocused(false)
@@ -54,37 +104,26 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
 
     xtermRef.current = term
     fitAddonRef.current = fitAddon
+    hasReportedErrorRef.current = false // Reset error flag on new connection attempt
 
-    // Handle resize via term.onResize to sync with backend
     term.onResize(({ cols, rows }) => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'resize', cols, rows }))
       }
     })
 
-    // Connect to WebSocket
-    // Default to localhost for development, but in production VITE_WS_URL should be set
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const defaultUrl =
-      window.location.hostname === 'localhost'
-        ? 'ws://localhost:3001'
-        : `${protocol}//${host}/ws`
-
-    // Use environment variable if set, otherwise fallback to dynamic default
-    const wsUrl = import.meta.env.VITE_WS_URL || defaultUrl
-
+    // WebSocket Connection
+    const wsUrl = getWsUrl()
     console.log('Connecting to terminal backend:', wsUrl)
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onopen = () => {
       term.writeln('\x1b[1;32mConnected to interactive backend!\x1b[0m')
+      hasReportedErrorRef.current = false // Connection successful, reset error flag
 
-      // Force a fit and sync size immediately on connection
       setTimeout(() => {
         fitAddon.fit()
-        // Manually send resize once to ensure backend is synced even if onResize didn't fire
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(
             JSON.stringify({
@@ -101,7 +140,6 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       if (typeof event.data === 'string') {
         term.write(event.data)
       } else {
-        // Handle blobs if necessary
         const reader = new FileReader()
         reader.onload = () => {
           term.write(reader.result as string)
@@ -110,43 +148,24 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       }
     }
 
-    const reportError = (msg?: string) => {
-      term.writeln('')
-      term.writeln('\x1b[1;31m⚠ Connection Error\x1b[0m')
-      term.writeln(
-        '\x1b[33mUnable to connect to the interactive terminal backend.\x1b[0m'
-      )
-      if (msg) {
-        term.writeln(`\x1b[2;37mDetails: ${msg}\x1b[0m`)
-      }
-      term.writeln('')
-      term.writeln(
-        '\x1b[1;34mℹ Tip:\x1b[0m \x1b[90mThe server might be sleeping or offline to save resources.'
-      )
-      term.writeln('Try refreshing the page in a few moments.\x1b[0m')
-      term.writeln('')
-    }
-
     ws.onclose = (event) => {
       if (event.wasClean) {
         term.writeln('\r\n\x1b[1;32mSession ended normally.\x1b[0m')
       } else {
-        reportError(`Closed unexpectedly (Code: ${event.code})`)
+        reportError(term, `Closed unexpectedly (Code: ${event.code})`)
       }
     }
 
     ws.onerror = () => {
-      reportError()
+      reportError(term)
     }
 
-    // Client -> Server
     term.onData((data) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'input', data }))
       }
     })
 
-    // Handle resize with ResizeObserver for better reliability
     const resizeObserver = new ResizeObserver(() => {
       window.requestAnimationFrame(() => {
         if (terminalRef.current) {
@@ -165,7 +184,6 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
 
   useEffect(() => {
     if (isVisible && xtermRef.current && fitAddonRef.current) {
-      // Small timeout to allow transition/rendering to finish
       setTimeout(() => {
         fitAddonRef.current?.fit()
         xtermRef.current?.focus()
@@ -181,6 +199,50 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     }
   }
 
+  useEffect(() => {
+    const checkSchedule = () => {
+      if (!xtermRef.current) return
+
+      const now = new Date()
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      })
+
+      // Parse current NY time
+      const parts = formatter.formatToParts(now)
+      const hourStr = parts.find((p) => p.type === 'hour')?.value || '0'
+      const minStr = parts.find((p) => p.type === 'minute')?.value || '0'
+      const hour = parseInt(hourStr, 10)
+      const minute = parseInt(minStr, 10)
+
+      // Shutdown happens at 8:00 PM.
+      // Warn at 7:55 PM
+      if (hour === 19 && minute === 55) {
+        xtermRef.current.writeln('')
+        xtermRef.current.writeln(
+          '\x1b[33m⚠ NOTICE: Server scheduled to sleep in 5 minutes.\x1b[0m'
+        )
+        xtermRef.current.writeln('')
+      }
+
+      // Warn at 7:59 PM
+      if (hour === 19 && minute === 59) {
+        xtermRef.current.writeln('')
+        xtermRef.current.writeln(
+          '\x1b[31m⚠ WARNING: Server sleeping in 1 minute. Session will close.\x1b[0m'
+        )
+        xtermRef.current.writeln('')
+      }
+    }
+
+    // Check every 30 seconds to catch the specific minute
+    const interval = setInterval(checkSchedule, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="relative w-full h-[600px] rounded-lg shadow-2xl shadow-ctp-mauve/30 overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
       <div
@@ -195,8 +257,24 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
           className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
           onClick={handleFocus}
         >
-          <div className="bg-ctp-base/80 px-4 py-2 rounded-lg text-ctp-text font-bold border border-ctp-surface1 shadow-lg hover:scale-105 transition-transform">
-            Click to Activate
+          <div className="flex items-center bg-ctp-base/80 px-4 py-2 rounded-lg text-ctp-text font-bold border border-ctp-surface1 shadow-lg hover:scale-105 transition-transform">
+            {isServerSleeping && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mr-2 text-ctp-yellow"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            )}
+            {isServerSleeping ? 'Live Sandbox (Sleeping)' : 'Click to Activate'}
           </div>
         </div>
       )}
