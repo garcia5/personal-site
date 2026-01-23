@@ -13,3 +13,7 @@ Follow modern TypeScript and React best practices when adding any new code. Whil
 1. **Build Docker Image:** `docker build -t alexander-personal-site-term .`
 2. **Start Backend:** `cd server && node index.js`
 3. **Start Frontend:** `npm run dev`
+
+## Server Configuration
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md)
