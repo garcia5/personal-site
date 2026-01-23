@@ -13,3 +13,6 @@ Follow modern TypeScript and React best practices when adding any new code. Whil
 1. **Build Docker Image:** `docker build -t alexander-personal-site-term .`
 2. **Start Backend:** `cd server && node index.js`
 3. **Start Frontend:** `npm run dev`
+
+## Contributing
+When making any changes to the code, _especially changes to setup/deployment scripts_ be sure to update any relevant documentation. That includes updating this file, as well as [DEPLOYMENT.md](./.gemini/skills/server-debug/references/DEPLOYMENT.md)
