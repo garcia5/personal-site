@@ -51,4 +51,9 @@ else
     sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email agarcia1359@gmail.com --redirect
 fi
 
+# 7. Setup Boot Sequence
+echo "Configuring crontab for boot deployment..."
+CRON_JOB="@reboot $HOME/personal-site/deploy/on-boot.sh >> $HOME/on-boot.log 2>&1"
+(crontab -l 2>/dev/null | grep -v "on-boot.sh"; echo "$CRON_JOB") | crontab -
+
 echo "Backend Deployment Complete!"
