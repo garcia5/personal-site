@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Terminal from '../components/Terminal'
+import GitLog from '../components/GitLog'
 
 const configData = [
   {
@@ -62,7 +63,7 @@ const Dotfiles: React.FC = () => {
   }, [isMobile, setViewMode])
 
   return (
-    <div className="text-left max-w-4xl mx-auto mb-40 w-full px-4">
+    <div className="text-left max-w-4xl mx-auto mb-40 w-full px-4 relative">
       <h1 className="text-3xl font-bold text-center pb-4">Dotfiles</h1>
 
       {!isMobile ? (
@@ -95,63 +96,77 @@ const Dotfiles: React.FC = () => {
         </p>
       )}
 
-      {/* Terminal View */}
-      <div
-        className="w-full terminal-container"
-        style={{
-          display: viewMode === 'terminal' && !isMobile ? 'block' : 'none',
-        }}
-      >
-        <div className="text-center mb-6">
-          <p className="text-ctp-subtext0 max-w-2xl mx-auto">
-            This is a real, ephemeral Linux container running my actual
-            dotfiles. Try{' '}
-            <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
-            <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
-            <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see how
-            I work.
-          </p>
+      {/* Main Content */}
+      <div className="w-full">
+        {/* Terminal View */}
+        <div
+          className="w-full terminal-container"
+          style={{
+            display: viewMode === 'terminal' && !isMobile ? 'block' : 'none',
+          }}
+        >
+          <div className="text-center mb-6">
+            <p className="text-ctp-subtext0 max-w-2xl mx-auto">
+              This is a real, ephemeral Linux container running my actual
+              dotfiles. Try{' '}
+              <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
+              <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
+              <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see
+              how I work.
+            </p>
+          </div>
+          <Terminal isVisible={viewMode === 'terminal' && !isMobile} />
         </div>
-        <Terminal isVisible={viewMode === 'terminal' && !isMobile} />
+
+        {/* Gallery View */}
+        <div style={{ display: viewMode === 'gallery' ? 'block' : 'none' }}>
+          <p className="text-center">
+            These are links to some of my personal configurations, updated
+            relatively frequently
+          </p>
+
+          <ul className="my-4 space-y-8">
+            {configData.map((config) => (
+              <li key={config.id} className="flex flex-col items-center">
+                <a
+                  href={config.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xl text-ctp-mauve hover:underline mb-2"
+                >
+                  {config.display}
+                </a>
+                {config.image && (
+                  <div
+                    className="bg-ctp-surface0 p-2 rounded-lg shadow-md max-w-xl w-full cursor-default [@media(pointer:fine)]:cursor-pointer"
+                    onClick={() => {
+                      if (window.matchMedia('(pointer: fine)').matches) {
+                        setSelectedImage(config.image)
+                      }
+                    }}
+                  >
+                    <img
+                      src={config.image}
+                      alt={`${config.display} Showcase`}
+                      className="w-full h-auto rounded-md transition-transform duration-300 ease-in-out transform [@media(pointer:fine)]:hover:scale-[1.02]"
+                    />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      {/* Gallery View */}
-      <div style={{ display: viewMode === 'gallery' ? 'block' : 'none' }}>
-        <p className="text-center">
-          These are links to some of my personal configurations, updated
-          relatively frequently
-        </p>
-        <ul className="my-4 space-y-8">
-          {configData.map((config) => (
-            <li key={config.id} className="flex flex-col items-center">
-              <a
-                href={config.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xl text-ctp-mauve hover:underline mb-2"
-              >
-                {config.display}
-              </a>
-              {config.image && (
-                <div
-                  className="bg-ctp-surface0 p-2 rounded-lg shadow-md max-w-xl w-full cursor-default [@media(pointer:fine)]:cursor-pointer"
-                  onClick={() => {
-                    if (window.matchMedia('(pointer: fine)').matches) {
-                      setSelectedImage(config.image)
-                    }
-                  }}
-                >
-                  <img
-                    src={config.image}
-                    alt={`${config.display} Showcase`}
-                    className="w-full h-auto rounded-md transition-transform duration-300 ease-in-out transform [@media(pointer:fine)]:hover:scale-[1.02]"
-                  />
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+      {/* Sidebar - Mobile (In Flow) */}
+      <div className="lg:hidden mt-12">
+        <GitLog />
       </div>
+
+      {/* Sidebar - Desktop (Fixed Right) */}
+      <aside className="hidden lg:block fixed right-4 top-1/2 -translate-y-1/2 w-80 max-h-[80vh] overflow-y-auto z-10">
+        <GitLog />
+      </aside>
 
       {selectedImage && (
         <div
