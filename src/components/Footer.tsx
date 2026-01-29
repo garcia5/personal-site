@@ -1,4 +1,5 @@
 import React from 'react'
+import { GithubIcon, LinkedinIcon } from '../assets/Icons'
 
 const technologies = [
   { name: 'React', url: 'https://react.dev/' },
@@ -11,22 +12,22 @@ const technologies = [
 const Footer: React.FC = () => {
   return (
     <div className="footer py-4 bg-ctp-surface0 px-4">
-      <div className="flex flex-row items-center justify-center w-full">
+      <div className="flex flex-row items-center justify-center w-full mb-4">
         <a
           href="https://github.com/garcia5"
           target="_blank"
           rel="noopener noreferrer"
-          className="mx-2"
+          className="mx-2 text-ctp-text hover:text-ctp-mauve transition-colors"
         >
-          <img className="h-8 w-8" src="/github.svg" alt="GitHub" />
+          <GithubIcon className="h-8 w-8" />
         </a>
         <a
           href="https://www.linkedin.com/in/alexander-j-garcia"
           target="_blank"
           rel="noopener noreferrer"
-          className="mx-2"
+          className="mx-2 text-ctp-text hover:text-ctp-mauve transition-colors"
         >
-          <img className="h-8 w-8" src="/linkedin.svg" alt="LinkedIn" />
+          <LinkedinIcon className="h-8 w-8" />
         </a>
       </div>
       <p className="text-center text-ctp-subtext0">
