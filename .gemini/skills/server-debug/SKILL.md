@@ -7,6 +7,12 @@ description: Debug issues with the webserver not working as expected
 
 You are managing a basic personal website, hosted entirely on AWS. Something is going wrong with the site, and you must help diagnose and solve the issue.
 
+## Instructions
+Always start by running the application locally:
+```bash
+npm run dev
+```
+
 When tracking down the cause of an issue, keep in mind...
 * you can ask for more details about the bug at any time
 * you have _read_ access to AWS resources to pull real time information

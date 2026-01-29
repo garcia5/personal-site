@@ -8,6 +8,9 @@ This is a full-stack personal website built using TypeScript, React, Vite, Tailw
 
 ## General Instructions
 Follow modern TypeScript and React best practices when adding any new code. While desktop usage is the priority, all features and layouts on the site should also fully support mobile devices.
+- Do not use `any` type where possible, prefer `unknown`
+- Use `npm run lint` after making changes to ensure no linting errors have been introduced
+- Use `npm run build` to ensure the application can be deployed
 
 ## Running the Project
 1. **Build Docker Image:** `docker build -t alexander-personal-site-term .`
