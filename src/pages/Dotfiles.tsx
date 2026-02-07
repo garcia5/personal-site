@@ -11,19 +11,14 @@ const configData = [
     image: '/Nvim Showcase.png',
   },
   {
-    url: 'https://github.com/garcia5/dotfiles/blob/master/files/wezterm.lua',
-    display: 'WezTerm',
-    id: 'wez',
+    url: 'https://github.com/garcia5/dotfiles/blob/master/files/tmux.conf',
+    display: 'Ghostty + Tmux',
+    id: 'ghosttytmux',
     image: '/Terminal Showcase.png',
   },
   {
-    url: 'https://github.com/garcia5/dotfiles/blob/master/files/zshrc',
-    display: 'Zsh',
-    id: 'zsh',
-  },
-  {
     url: 'https://github.com/garcia5/dotfiles/blob/master/files/functions',
-    display: '(Mostly) FZF Integration',
+    display: 'FZF + ZSH',
     id: 'fzf',
     image: '/fzf-1.png',
   },
@@ -61,6 +56,16 @@ const Dotfiles: React.FC = () => {
       setViewMode('gallery')
     }
   }, [isMobile, setViewMode])
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedImage(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <div className="text-left max-w-4xl mx-auto mb-40 w-full px-4 relative">
@@ -108,11 +113,9 @@ const Dotfiles: React.FC = () => {
           <div className="text-center mb-6">
             <p className="text-ctp-subtext0 max-w-2xl mx-auto">
               This is a real, ephemeral Linux container running my actual
-              dotfiles. Try{' '}
-              <code className="bg-ctp-surface0 px-1 rounded">ls</code>,
-              <code className="bg-ctp-surface0 px-1 rounded">nvim</code>, or
-              <code className="bg-ctp-surface0 px-1 rounded">fzf</code> to see
-              how I work.
+              dotfiles. Try <code className="inline-code">ls</code>,
+              <code className="inline-code">nvim</code>, or
+              <code className="inline-code">fzf</code> to see how I work.
             </p>
           </div>
           <Terminal isVisible={viewMode === 'terminal' && !isMobile} />

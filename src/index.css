@@ -8,3 +8,9 @@
   font-weight: normal;
   font-style: normal;
 }
+
+@layer components {
+  .inline-code {
+    @apply bg-ctp-surface0 px-1 rounded;
+  }
+}
