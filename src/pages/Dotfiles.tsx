@@ -167,7 +167,7 @@ const Dotfiles: React.FC = () => {
       </div>
 
       {/* Sidebar - Desktop (Fixed Right) */}
-      <aside className="hidden lg:block fixed right-4 top-1/2 -translate-y-1/2 w-80 max-h-[80vh] overflow-y-auto z-10">
+      <aside className="hidden lg:block fixed right-4 top-24 w-80 max-h-[calc(100vh-8rem)] overflow-y-auto z-0">
         <GitLog />
       </aside>
 
