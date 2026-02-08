@@ -10,7 +10,11 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-xterm': ['xterm', '@xterm/addon-attach', 'xterm-addon-fit'],
+          'vendor-xterm': [
+            '@xterm/xterm',
+            '@xterm/addon-attach',
+            '@xterm/addon-fit',
+          ],
           'vendor-aws': ['aws-rum-web'],
         },
       },
