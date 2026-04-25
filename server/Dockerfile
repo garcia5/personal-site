@@ -64,7 +64,7 @@ RUN ARCH=$(uname -m) && \
     else \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
-    curl -L -o nvim.tar.gz "https://github.com/neovim/neovim/releases/download/v0.11.5/${NVIM_ARCH}.tar.gz" && \
+    curl -L -o nvim.tar.gz "https://github.com/neovim/neovim/releases/download/v0.12.2/${NVIM_ARCH}.tar.gz" && \
     tar -C /opt -xzf nvim.tar.gz && \
     ln -s "/opt/${NVIM_ARCH}/bin/nvim" /usr/local/bin/nvim && \
     rm nvim.tar.gz
@@ -99,7 +99,7 @@ COPY --chown=dev:dev .custom /home/dev/.custom
 RUN git clone https://github.com/garcia5/dotfiles.git ~/.dotfiles
 
 # ENV for Treesitter
-ENV TREESITTER_INSTALL="c,lua,vim,vimdoc,query,python,typescript,javascript,html,css,bash,markdown,json"
+ENV TREESITTER_INSTALL="c,lua,vim,vimdoc,query,python,typescript,javascript,html,css,bash,markdown,json,zsh"
 
 # Copy and run the setup script
 COPY --chown=dev:dev setup_container.sh /home/dev/setup_container.sh

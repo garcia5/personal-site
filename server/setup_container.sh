@@ -126,7 +126,7 @@ replace_file "$HOME/.wezterm.lua" "$DF_HOME/files/wezterm.lua"
 
 # 6. Bootstrap Neovim Plugins
 echo "Bootstrapping Neovim plugins..."
-# Sync Lazy plugins first
-nvim --headless "+Lazy! sync" +qa
+# Sync plugins first
+nvim --headless "+Psync" +qa
 
 echo "Container Setup Complete!"
