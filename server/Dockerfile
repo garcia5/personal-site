@@ -4,14 +4,14 @@ FROM ubuntu:latest
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
-# We include 'bat' and 'exa' (or 'eza') if available, or map them.
-# Ubuntu uses 'batcat' for bat.
-RUN apt-get update && apt-get install -y \
-    curl \
+RUN apt-get update && apt-get install -y curl ca-certificates gnupg && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && apt-get install -y \
     git \
     zsh \
     nodejs \
-    npm \
     python3 \
     python3-venv \
     python3-pip \
@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y \
     bat \
     locales \
     sudo \
-    ca-certificates \
     zsh-syntax-highlighting \
     git-delta \
     eza \
@@ -97,9 +96,6 @@ COPY --chown=dev:dev .custom /home/dev/.custom
 
 # Clone dotfiles
 RUN git clone https://github.com/garcia5/dotfiles.git ~/.dotfiles
-
-# ENV for Treesitter
-ENV TREESITTER_INSTALL="c,lua,vim,vimdoc,query,python,typescript,javascript,html,css,bash,markdown,json,zsh"
 
 # Copy and run the setup script
 COPY --chown=dev:dev setup_container.sh /home/dev/setup_container.sh

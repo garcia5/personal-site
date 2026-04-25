@@ -107,7 +107,56 @@ function install_scripts {
     done
 }
 
+function setup_git {
+    echo "Setting up git config..."
+    git config --global url."https://github.com/".insteadOf "gh:"
+}
+
+function setup_treesitter {
+    echo "Installing Treesitter parsers..."
+    cat << 'EOF' > /tmp/install_ts.lua
+local langs = {'c', 'lua', 'vim', 'vimdoc', 'query', 'python', 'typescript', 'javascript', 'html', 'css', 'bash', 'markdown', 'json', 'zsh'}
+local config = require('nvim-treesitter.config')
+local install = require('nvim-treesitter.install')
+local dir = config.get_install_dir('parser')
+
+if not dir then
+    print('Error: Could not find Treesitter install directory')
+    os.exit(1)
+end
+
+print('Installing parsers to: ' .. dir)
+install.install(langs, { force = true })
+
+-- Wait up to 2 minutes for all parsers to be compiled and installed
+local success = vim.wait(120000, function()
+    for _, lang in ipairs(langs) do
+        local path = dir .. '/' .. lang .. '.so'
+        if vim.fn.filereadable(path) == 0 then
+            return false
+        end
+    end
+    return true
+end, 1000)
+
+if success == -1 then
+    print('Error: Treesitter installation timed out')
+    os.exit(1)
+else
+    print('Treesitter parsers installed successfully')
+    os.exit(0)
+end
+EOF
+    nvim --headless -c "luafile /tmp/install_ts.lua"
+    rm /tmp/install_ts.lua
+}
+
+
+
 # --- Main Execution ---
+
+# 0. Git
+setup_git
 
 # 1. Colors
 install_colorscheme
@@ -128,5 +177,8 @@ replace_file "$HOME/.wezterm.lua" "$DF_HOME/files/wezterm.lua"
 echo "Bootstrapping Neovim plugins..."
 # Sync plugins first
 nvim --headless "+Psync" +qa
+
+# 7. Treesitter
+setup_treesitter
 
 echo "Container Setup Complete!"
