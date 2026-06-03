@@ -28,7 +28,7 @@
     "aws-rum-web": "^2.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.3",
+    "react-router-dom": "^7.16.0",
     "shiki": "^3.21.0"
   },
   "devDependencies": {
