@@ -82,14 +82,58 @@ To avoid your DNS and GitHub Actions breaking when the instance restarts (e.g., 
    ```
 
 5. **Configure Startup Behavior**
-   The EC2 backend instance is shut down + started up daily by an EventBridge schedule. Add an entry to the system's
-   crontab to make sure the `deploy/on-boot.sh` script is executed each time the system starts up.
+   The EC2 backend instance is asleep by default and wakes up on demand. Make sure you delete or disable any scheduled AWS EventBridge rule that automatically starts/stops the EC2 instance at fixed times.
+
+   However, we still need to run the boot script whenever the instance starts up to ensure Nginx and the Node process are refreshed and running. Add an entry to the system's crontab:
    ```bash
    CRON_JOB="@reboot $HOME/personal-site/deploy/on-boot.sh >> $HOME/on-boot.log 2>&1"
    (crontab -l 2>/dev/null | grep -v "on-boot.sh"; echo "$CRON_JOB") | crontab -
    ```
 
-## 4. Updates & Maintenance
+## 5. Wake-on-Demand Setup (AWS Lambda)
+
+To save costs, the EC2 instance is stopped after 5 minutes of inactivity (no WebSocket connections). To wake it up on demand from the static frontend, we use a serverless AWS Lambda function exposed via a Function URL.
+
+### Step 1: Create the IAM Policy
+Create an IAM Policy named `EC2StartLimitPolicy` with permissions to start your instance:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:StartInstances",
+        "ec2:DescribeInstances"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+### Step 2: Create the Lambda Function
+1. Create a new Lambda function named `personal-site-wakeup` using a modern runtime (e.g., **Node.js 20**, **Node.js 22**, or **Node.js 24**).
+2. In the **Execution role**, attach the `EC2StartLimitPolicy` policy created in Step 1.
+3. Copy the code from [deploy/wakeup-lambda.js](file:///Users/alexander/projects/personal-site/deploy/wakeup-lambda.js) into the Lambda `index.mjs` (or index file for your runtime).
+4. Deploy the function.
+
+### Step 3: Configure Environment Variables
+In the Lambda function configuration page, go to **Configuration > Environment variables** and add:
+- Key: `EC2_INSTANCE_ID`
+- Value: `i-0202f400e190e91d9` (Your EC2 Instance ID)
+
+### Step 4: Configure Function URL & CORS
+1. Go to **Configuration > Function URL** and click **Create Function URL**.
+2. Select **Auth type: NONE** (so it can be called publicly).
+3. Check the **Configure CORS** box.
+4. Set CORS parameters:
+   - **Allow origin:** `*` (or your domain `https://alexjgarcia.com`)
+   - **Exposed headers:** `Content-Type`
+   - **Allow methods:** `GET, POST, OPTIONS`
+5. Save. Copy the generated **Function URL**.
+
+## 6. Updates & Maintenance
 
 ### Updating the Backend Code
 If you push changes to `server/` or the `Dockerfile`:
@@ -101,12 +145,12 @@ If you push changes to `server/` or the `Dockerfile`:
 ### Updating the Frontend
 Run locally and sync to S3:
 ```bash
-VITE_WS_URL="wss://terminal.alexjgarcia.com/ws" npm run build
+VITE_WS_URL="wss://terminal.alexjgarcia.com/ws" VITE_WAKEUP_URL="https://<lambda-func-url>.lambda-url.us-east-1.on.aws/" npm run build
 aws s3 sync dist/ s3://<your-bucket> --delete
 aws cloudfront create-invalidation --distribution-id <ID> --paths "/*"
 ```
 
-## 5. Troubleshooting
+## 7. Troubleshooting
 
 **Check Backend Logs:**
 ```bash
@@ -129,18 +173,20 @@ sudo systemctl status nginx
 sudo tail -f /var/log/nginx/error.log
 ```
 
-## 6. Continuous Deployment (GitHub Actions)
+## 8. Continuous Deployment (GitHub Actions)
 
 This repository includes two automated workflows:
 
 ### **Frontend (`.github/workflows/main.yml`)**
 *   **Trigger:** Push to `main`.
 *   **Action:** Builds the React app and syncs it to S3 + CloudFront.
-*   **Key Feature:** Injects the `VITE_WS_URL` at build time so the frontend knows where to connect.
+*   **Key Feature:** Injects the `VITE_WS_URL` and `VITE_WAKEUP_URL` at build time so the frontend knows where to connect.
 
-### **Backend (`.github/workflows/deploy-backend.yml`)**
+### **Backend & Lambda (`.github/workflows/deploy-backend.yml`)**
 *   **Trigger:** Push to `main` involving `server/**` or `deploy/**` files.
-*   **Action:** SSHs into the EC2 instance, pulls the latest code, and runs `./deploy/setup.sh` to rebuild the container and restart the service.
+*   **Actions:**
+    *   **deploy-backend:** SSHs into the EC2 instance (if running), pulls the latest code, and runs `./deploy/setup.sh` to rebuild the sandbox container and restart the service.
+    *   **deploy-lambda:** If `deploy/wakeup-lambda.js` is modified, it automatically packages it as a zip archive and deploys it to the `personal-site-wakeup` Lambda function using the AWS CLI.
 
 ### **Required GitHub Secrets**
 Go to **Settings > Secrets and variables > Actions** and add:
@@ -153,4 +199,5 @@ Go to **Settings > Secrets and variables > Actions** and add:
 | `EC2_USERNAME` | `ubuntu` | SSH Username |
 | `EC2_SSH_KEY` | `-----BEGIN RSA PRIVATE KEY...` | Content of your `.pem` key |
 | `VITE_WS_URL` | `wss://terminal.alexjgarcia.com/ws` | Secure WebSocket URL |
+| `VITE_WAKEUP_URL` | `https://<lambda-func-url>.lambda-url.us-east-1.on.aws/` | Lambda Wakeup Function URL |
 
