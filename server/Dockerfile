@@ -54,7 +54,7 @@ RUN ARCH=$(uname -m) && \
     mv "fd-v10.2.0-${FD_ARCH}/fd" /usr/local/bin/fd && \
     rm -rf fd.tar.gz "fd-v10.2.0-${FD_ARCH}"
 
-# Install Neovim Nightly (v0.11.x) - Dynamic Arch Detection
+# Install Neovim stable (v0.12.2) - Dynamic Arch Detection
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
         NVIM_ARCH="nvim-linux-x86_64"; \
