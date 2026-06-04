@@ -16,18 +16,6 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
   const [isFocused, setIsFocused] = React.useState(false)
   const [shouldConnect, setShouldConnect] = React.useState(false)
 
-  const isServerSleeping = (() => {
-    const now = new Date()
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      hour: 'numeric',
-      hour12: false,
-    })
-    const hour = parseInt(formatter.format(now), 10)
-    // hour < 8 (0-7) or hour >= 20 (20-23)
-    return hour < 8 || hour >= 20
-  })()
-
   const initTerminal = () => {
     const term = new XTerminal({
       cursorBlink: true,
@@ -59,24 +47,15 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     hasReportedErrorRef.current = true
 
     term.writeln('')
-
-    if (isServerSleeping) {
-      term.writeln(
-        '\x1b[1;34mℹ Status:\x1b[0m \x1b[90mThe backend server is currently sleeping.'
-      )
-      term.writeln('Active Hours: 8:00 AM - 8:00 PM (New York Time)')
-      term.writeln('Please check back later!\x1b[0m')
-    } else {
-      term.writeln('\x1b[1;31m⚠ Connection Error\x1b[0m')
-      term.writeln(
-        '\x1b[33mUnable to connect to the interactive terminal backend.\x1b[0m'
-      )
-      if (msg) {
-        term.writeln(`\x1b[2;37mDetails: ${msg}\x1b[0m`)
-      }
-      term.writeln('')
-      term.writeln('Try refreshing the page in a few moments.\x1b[0m')
+    term.writeln('\x1b[1;31m⚠ Connection Error\x1b[0m')
+    term.writeln(
+      '\x1b[33mUnable to connect to the interactive terminal backend.\x1b[0m'
+    )
+    if (msg) {
+      term.writeln(`\x1b[2;37mDetails: ${msg}\x1b[0m`)
     }
+    term.writeln('')
+    term.writeln('Try refreshing the page in a few moments.\x1b[0m')
     term.writeln('')
   }
 
@@ -112,57 +91,131 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
       }
     })
 
-    // WebSocket Connection
+    let isDisposed = false
+    let retryTimeout: NodeJS.Timeout | undefined
+    let attempt = 0
+    const maxAttempts = 36 // ~3 minutes with 5s delay
+
     const wsUrl = getWsUrl()
-    console.log('Connecting to terminal backend:', wsUrl)
-    const ws = new WebSocket(wsUrl)
-    wsRef.current = ws
+    const wakeupUrl = import.meta.env.VITE_WAKEUP_URL
 
-    ws.onopen = () => {
-      term.writeln('\x1b[1;32mConnected to interactive backend!\x1b[0m')
-      hasReportedErrorRef.current = false // Connection successful, reset error flag
+    const triggerWakeupAndConnect = async () => {
+      if (isDisposed) return
 
-      setTimeout(() => {
-        fitAddon.fit()
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              type: 'resize',
-              cols: term.cols,
-              rows: term.rows,
-            })
+      if (wakeupUrl) {
+        term.writeln('\x1b[1;34mℹ Status:\x1b[0m Waking up sandbox server...')
+        try {
+          // Sending a post request to wake up the server (e.g. AWS Lambda Function URL)
+          const res = await fetch(wakeupUrl, { method: 'POST' })
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const data = await res.json()
+          term.writeln(
+            `\x1b[1;32m✓ Status:\x1b[0m Wake-up signal sent successfully (Current state: ${
+              data.currentState || 'starting'
+            }).`
+          )
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          term.writeln(
+            `\x1b[1;33m⚠ Warning:\x1b[0m Failed to trigger wake-up API (${errMsg}). Attempting direct connection...`
           )
         }
-      }, 100)
-    }
-
-    ws.onmessage = (event) => {
-      if (typeof event.data === 'string') {
-        term.write(event.data)
       } else {
-        const reader = new FileReader()
-        reader.onload = () => {
-          term.write(reader.result as string)
+        term.writeln('\x1b[1;34mℹ Status:\x1b[0m Waking up sandbox server...')
+      }
+
+      term.writeln(
+        'Connecting to the backend. Please wait, this can take up to 60-90 seconds...'
+      )
+
+      const tryConnect = () => {
+        if (isDisposed) return
+        attempt++
+        term.write(`[System] Connection attempt ${attempt}/${maxAttempts}... `)
+
+        console.log(
+          `Connecting to terminal backend (attempt ${attempt}):`,
+          wsUrl
+        )
+        const ws = new WebSocket(wsUrl)
+        wsRef.current = ws
+
+        let hasOpened = false
+
+        ws.onopen = () => {
+          hasOpened = true
+          term.writeln('\x1b[1;32mConnected!\x1b[0m\r\n')
+          hasReportedErrorRef.current = false // Connection successful, reset error flag
+
+          setTimeout(() => {
+            if (isDisposed) return
+            fitAddon.fit()
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(
+                JSON.stringify({
+                  type: 'resize',
+                  cols: term.cols,
+                  rows: term.rows,
+                })
+              )
+            }
+          }, 100)
         }
-        reader.readAsText(event.data)
+
+        ws.onmessage = (event) => {
+          if (typeof event.data === 'string') {
+            term.write(event.data)
+          } else {
+            const reader = new FileReader()
+            reader.onload = () => {
+              term.write(reader.result as string)
+            }
+            reader.readAsText(event.data)
+          }
+        }
+
+        ws.onerror = () => {
+          // If we haven't opened yet, onclose will handle retry/reporting.
+          if (hasOpened) {
+            reportError(term, 'WebSocket error occurred')
+          }
+        }
+
+        ws.onclose = (event) => {
+          if (hasOpened) {
+            if (event.wasClean) {
+              term.writeln('\r\n\x1b[1;32mSession ended normally.\x1b[0m')
+            } else {
+              reportError(term, `Closed unexpectedly (Code: ${event.code})`)
+            }
+          } else {
+            // Failed to connect initially (server starting up)
+            term.writeln('\x1b[1;31mFailed.\x1b[0m')
+            if (attempt < maxAttempts) {
+              term.writeln(
+                '[System] Server is still booting. Retrying in 5 seconds...'
+              )
+              retryTimeout = setTimeout(tryConnect, 5000)
+            } else {
+              reportError(
+                term,
+                'Server failed to start in time. Please try refreshing the page.'
+              )
+            }
+          }
+        }
       }
+
+      tryConnect()
     }
 
-    ws.onclose = (event) => {
-      if (event.wasClean) {
-        term.writeln('\r\n\x1b[1;32mSession ended normally.\x1b[0m')
-      } else {
-        reportError(term, `Closed unexpectedly (Code: ${event.code})`)
-      }
-    }
-
-    ws.onerror = () => {
-      reportError(term)
-    }
+    triggerWakeupAndConnect()
 
     term.onData((data) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'input', data }))
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'input', data }))
       }
     })
 
@@ -176,8 +229,10 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     resizeObserver.observe(terminalRef.current)
 
     return () => {
+      isDisposed = true
+      if (retryTimeout) clearTimeout(retryTimeout)
       resizeObserver.disconnect()
-      ws.close()
+      if (wsRef.current) wsRef.current.close()
       term.dispose()
     }
   }, [shouldConnect])
@@ -199,50 +254,6 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     }
   }
 
-  useEffect(() => {
-    const checkSchedule = () => {
-      if (!xtermRef.current) return
-
-      const now = new Date()
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/New_York',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false,
-      })
-
-      // Parse current NY time
-      const parts = formatter.formatToParts(now)
-      const hourStr = parts.find((p) => p.type === 'hour')?.value || '0'
-      const minStr = parts.find((p) => p.type === 'minute')?.value || '0'
-      const hour = parseInt(hourStr, 10)
-      const minute = parseInt(minStr, 10)
-
-      // Shutdown happens at 8:00 PM.
-      // Warn at 7:55 PM
-      if (hour === 19 && minute === 55) {
-        xtermRef.current.writeln('')
-        xtermRef.current.writeln(
-          '\x1b[33m⚠ NOTICE: Server scheduled to sleep in 5 minutes.\x1b[0m'
-        )
-        xtermRef.current.writeln('')
-      }
-
-      // Warn at 7:59 PM
-      if (hour === 19 && minute === 59) {
-        xtermRef.current.writeln('')
-        xtermRef.current.writeln(
-          '\x1b[31m⚠ WARNING: Server sleeping in 1 minute. Session will close.\x1b[0m'
-        )
-        xtermRef.current.writeln('')
-      }
-    }
-
-    // Check every 30 seconds to catch the specific minute
-    const interval = setInterval(checkSchedule, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <div className="relative w-full h-[600px] rounded-lg shadow-2xl shadow-ctp-mauve/30 overflow-hidden border border-[#45475a] bg-[#1e1e2e]">
       <div
@@ -258,23 +269,22 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
           onClick={handleFocus}
         >
           <div className="flex items-center bg-ctp-base/80 px-4 py-2 rounded-lg text-ctp-text font-bold border border-ctp-surface1 shadow-lg hover:scale-105 transition-transform">
-            {isServerSleeping && (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2 text-ctp-yellow"
-              >
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
-            )}
-            {isServerSleeping ? 'Live Sandbox (Sleeping)' : 'Click to Activate'}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2 text-ctp-green"
+            >
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+            Click to Launch Sandbox
           </div>
         </div>
       )}

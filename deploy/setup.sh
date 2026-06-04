@@ -23,7 +23,7 @@ npm run build
 sudo npm install -g pm2 --force
 # Stop existing process if any
 sudo pm2 delete personal-site-backend || true
-sudo pm2 start dist/index.js --name "personal-site-backend"
+sudo env NODE_ENV=production pm2 start dist/index.js --name "personal-site-backend" --update-env
 cd ..
 
 # 5. Configure Nginx (Backend Proxy Only)

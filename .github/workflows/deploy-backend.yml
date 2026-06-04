@@ -45,3 +45,36 @@ jobs:
             git pull origin main
             ./deploy/refresh-server.sh
 
+  deploy-lambda:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check for Lambda changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            lambda:
+              - 'deploy/wakeup-lambda.js'
+
+      - name: Configure AWS Credentials
+        if: steps.filter.outputs.lambda == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Package and Deploy Lambda
+        if: steps.filter.outputs.lambda == 'true'
+        run: |
+          cp deploy/wakeup-lambda.js index.mjs
+          zip wakeup.zip index.mjs
+          aws lambda update-function-code \
+            --function-name personal-site-wakeup \
+            --zip-file fileb://wakeup.zip
+
+
