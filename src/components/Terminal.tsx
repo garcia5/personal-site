@@ -92,7 +92,7 @@ const Terminal: React.FC<TerminalProps> = ({ isVisible }) => {
     })
 
     let isDisposed = false
-    let retryTimeout: NodeJS.Timeout | undefined
+    let retryTimeout: ReturnType<typeof setTimeout> | undefined
     let attempt = 0
     const maxAttempts = 36 // ~3 minutes with 5s delay
 
