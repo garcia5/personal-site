@@ -35,7 +35,7 @@ RUN ARCH=$(uname -m) && \
     else \
         echo "Unsupported architecture for fzf: $ARCH" && exit 1; \
     fi && \
-    curl -L -o fzf.tar.gz "https://github.com/junegunn/fzf/releases/download/v0.67.0/fzf-0.67.0-${FZF_ARCH}.tar.gz" && \
+    curl -L -o fzf.tar.gz "https://github.com/junegunn/fzf/releases/download/v0.74.1/fzf-0.74.1-${FZF_ARCH}.tar.gz" && \
     tar -xzf fzf.tar.gz && \
     mv fzf /usr/local/bin/fzf && \
     rm fzf.tar.gz
@@ -54,7 +54,7 @@ RUN ARCH=$(uname -m) && \
     mv "fd-v10.2.0-${FD_ARCH}/fd" /usr/local/bin/fd && \
     rm -rf fd.tar.gz "fd-v10.2.0-${FD_ARCH}"
 
-# Install Neovim stable (v0.12.2) - Dynamic Arch Detection
+# Install Neovim stable - Dynamic Arch Detection
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
         NVIM_ARCH="nvim-linux-x86_64"; \
@@ -63,7 +63,7 @@ RUN ARCH=$(uname -m) && \
     else \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
-    curl -L -o nvim.tar.gz "https://github.com/neovim/neovim/releases/download/v0.12.2/${NVIM_ARCH}.tar.gz" && \
+    curl -L -o nvim.tar.gz "https://github.com/neovim/neovim/releases/download/stable/${NVIM_ARCH}.tar.gz" && \
     tar -C /opt -xzf nvim.tar.gz && \
     ln -s "/opt/${NVIM_ARCH}/bin/nvim" /usr/local/bin/nvim && \
     rm nvim.tar.gz
