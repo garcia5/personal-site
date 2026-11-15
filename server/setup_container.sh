@@ -115,7 +115,7 @@ function setup_git {
 function setup_treesitter {
     echo "Installing Treesitter parsers..."
     cat << 'EOF' > /tmp/install_ts.lua
-local langs = {'c', 'lua', 'vim', 'vimdoc', 'query', 'python', 'typescript', 'javascript', 'html', 'css', 'bash', 'markdown', 'json', 'zsh'}
+local langs = {'c', 'lua', 'vim', 'vimdoc', 'query', 'python', 'typescript', 'javascript', 'html', 'css', 'bash', 'markdown', 'json', 'zsh', 'gitconfig'}
 local config = require('nvim-treesitter.config')
 local install = require('nvim-treesitter.install')
 local dir = config.get_install_dir('parser')
