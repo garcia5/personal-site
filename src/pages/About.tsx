@@ -42,9 +42,9 @@ const funStuff = [
     alt: 'Me indoor bouldering',
   },
   {
-    title: 'Indy',
-    image: '/Indy.jpg',
-    alt: 'Professional photo of a black dog',
+    title: 'Dogs',
+    image: '/indy-and-enzo.jpg',
+    alt: 'Two black dogs lying on a bed',
   },
 ]
 
