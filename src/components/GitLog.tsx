@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { GithubIcon, ChevronIcon } from '../assets/Icons'
+import { GithubIcon, ChevronIcon, RefreshIcon } from '../assets/Icons'
 
 interface CommitFile {
   filename: string
@@ -26,7 +26,7 @@ interface CommitDetails {
   }
 }
 
-const CommitDetails: React.FC<{ commit: CommitDetails }> = ({ commit }) => {
+const CommitDetailsView: React.FC<{ commit: CommitDetails }> = ({ commit }) => {
   return (
     <div key={commit.sha} className="relative z-10 pl-4">
       {/* Commit Dot */}
@@ -40,18 +40,21 @@ const CommitDetails: React.FC<{ commit: CommitDetails }> = ({ commit }) => {
           rel="noopener noreferrer"
           className="text-ctp-green hover:underline font-bold"
         >
-          {commit.sha.substring(0, 7)}
+          {commit.sha?.substring(0, 7) || '???????'}
         </a>
         <span className="text-ctp-rosewater font-bold break-words leading-tight">
-          {commit.commit.message.split('\n')[0]}
+          {commit.commit?.message?.split('\n')[0] || ''}
         </span>
       </div>
 
       {/* Metadata: Date - Author */}
       <div className="text-ctp-subtext1 mb-2">
-        ({new Date(commit.commit.author.date).toLocaleDateString('en-US')}
+        (
+        {commit.commit?.author?.date
+          ? new Date(commit.commit.author.date).toLocaleDateString('en-US')
+          : ''}
         {' - '}
-        {commit.commit.author.name})
+        {commit.commit?.author?.name || 'Unknown'})
       </div>
 
       {/* Stats */}
@@ -91,8 +94,12 @@ const CommitDetails: React.FC<{ commit: CommitDetails }> = ({ commit }) => {
           )}
           <div className="text-ctp-overlay1 mt-1 pt-1 border-t border-ctp-surface0/30">
             {commit.files.length} files changed,{' '}
-            <span className="text-ctp-green">{commit.stats?.additions}(+)</span>{' '}
-            <span className="text-ctp-red">{commit.stats?.deletions}(-)</span>
+            <span className="text-ctp-green">
+              {commit.stats?.additions ?? 0}(+)
+            </span>{' '}
+            <span className="text-ctp-red">
+              {commit.stats?.deletions ?? 0}(-)
+            </span>
           </div>
         </div>
       )}
@@ -103,48 +110,151 @@ const CommitDetails: React.FC<{ commit: CommitDetails }> = ({ commit }) => {
 const GitLog: React.FC = () => {
   const [commits, setCommits] = useState<CommitDetails[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [retryTrigger, setRetryTrigger] = useState(0)
+
+  const handleRetry = () => {
+    setLoading(true)
+    setError(null)
+    setRetryTrigger((prev) => prev + 1)
+  }
 
   useEffect(() => {
+    let ignore = false
+
     const fetchCommits = async () => {
       try {
-        // 1. Fetch the list of commits
         const listRes = await fetch(
           'https://api.github.com/repos/garcia5/dotfiles/commits?per_page=5'
         )
-        const listData = await listRes.json()
+        if (!listRes.ok) {
+          if (listRes.status === 403) {
+            throw new Error('GitHub API rate limit exceeded.')
+          }
+          throw new Error(`GitHub API error (HTTP ${listRes.status}).`)
+        }
+
+        const listData: unknown = await listRes.json()
 
         if (!Array.isArray(listData)) {
-          setLoading(false)
+          throw new Error('Unexpected data format received from GitHub.')
+        }
+
+        if (listData.length === 0) {
+          if (!ignore) {
+            setCommits([])
+            setLoading(false)
+          }
           return
         }
 
-        // 2. Fetch details for each commit to get stats/files
-        // We do this in parallel
-        const detailsPromises = listData.map((commit: Record<string, string>) =>
-          fetch(commit.url).then((res) => res.json())
-        )
+        const detailsPromises = listData.map(async (item: unknown) => {
+          const commitObj = item as CommitDetails & { url?: string }
+          if (typeof commitObj.url === 'string') {
+            try {
+              const res = await fetch(commitObj.url)
+              if (res.ok) {
+                const detailData = (await res.json()) as CommitDetails
+                return detailData
+              }
+            } catch {
+              // Ignore detail fetch errors, fall back to commit summary
+            }
+          }
+          return commitObj
+        })
 
         const detailsData = await Promise.all(detailsPromises)
-        setCommits(detailsData)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error fetching git log:', error)
-        setLoading(false)
+        if (!ignore) {
+          setCommits(detailsData)
+          setLoading(false)
+        }
+      } catch (err: unknown) {
+        console.error('Error fetching git log:', err)
+        if (!ignore) {
+          const message =
+            err instanceof Error ? err.message : 'Unable to connect to GitHub.'
+          setError(message)
+          setLoading(false)
+        }
       }
     }
 
     fetchCommits()
-  }, [])
+
+    return () => {
+      ignore = true
+    }
+  }, [retryTrigger])
 
   if (loading)
     return (
-      <div className="w-full h-64 rounded-lg bg-ctp-crust border border-ctp-surface0 animate-pulse flex items-center justify-center">
+      <div className="w-full h-64 rounded-lg bg-ctp-crust border border-ctp-surface0 animate-pulse flex items-center justify-center font-mono text-xs">
         <span className="text-ctp-subtext0">Loading git log...</span>
       </div>
     )
 
-  if (commits.length === 0) return null
+  if (error || commits.length === 0) {
+    const errorMessage = error || 'No commits found.'
+    return (
+      <div className="w-full font-mono text-xs bg-ctp-crust p-4 rounded-lg border border-ctp-red/30 shadow-xl overflow-hidden transition-all duration-300">
+        <div className="flex flex-col gap-2 border-b border-ctp-surface0/60 pb-3 mb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-2">
+              <h3 className="text-ctp-mauve font-bold flex items-center gap-2">
+                <span className="text-ctp-red">➜</span>
+                <span>git log --stat</span>
+              </h3>
+              <a
+                href="https://github.com/garcia5/dotfiles"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ctp-blue hover:underline flex items-center gap-1 opacity-80"
+              >
+                <GithubIcon className="w-3 h-3" />
+                garcia5/dotfiles
+              </a>
+            </div>
+            <span className="text-ctp-red text-[10px] bg-ctp-red/10 px-2 py-0.5 rounded border border-ctp-red/20 font-bold">
+              offline
+            </span>
+          </div>
+        </div>
+
+        <div className="p-3 bg-ctp-mantle rounded border border-ctp-surface0/60 my-2 space-y-1.5">
+          <div className="text-ctp-red font-semibold flex items-center gap-1.5">
+            <span>fatal:</span>
+            <span>{errorMessage}</span>
+          </div>
+          <p className="text-ctp-overlay0 text-[11px] leading-normal">
+            GitHub may be unreachable or rate-limited. Check repository directly
+            or try refreshing.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mt-3 pt-1">
+          <a
+            href="https://github.com/garcia5/dotfiles"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ctp-mauve hover:underline text-[11px] flex items-center gap-1 opacity-90 hover:opacity-100"
+          >
+            <span>View on GitHub</span>
+            <span className="text-[10px]">↗</span>
+          </a>
+          <button
+            onClick={handleRetry}
+            className="px-2.5 py-1 bg-ctp-surface0 hover:bg-ctp-surface1 text-ctp-text hover:text-ctp-mauve rounded border border-ctp-surface1 transition-colors flex items-center gap-1.5 cursor-pointer text-[11px]"
+            aria-label="Retry fetching commits"
+          >
+            <RefreshIcon className="w-3 h-3" />
+            <span>Retry</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full font-mono text-xs bg-ctp-crust p-4 rounded-lg border border-ctp-surface0 shadow-xl overflow-hidden transition-all duration-300">
@@ -192,7 +302,7 @@ const GitLog: React.FC = () => {
           <div className="absolute left-[3.5px] top-2 bottom-2 w-px bg-ctp-surface1 z-0" />
 
           {commits.map((commit) => (
-            <CommitDetails key={commit.sha} commit={commit} />
+            <CommitDetailsView key={commit.sha} commit={commit} />
           ))}
         </div>
       )}
